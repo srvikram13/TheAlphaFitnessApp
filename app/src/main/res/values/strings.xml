@@ -1,4 +1,9 @@
 <resources>
     <string name="app_name">The Alpha Fitness App</string>
     <string name="action_settings">Settings</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="record_workout">Record Workout</string>
+    <string name="workout_details">Workout Details</string>
 </resources>

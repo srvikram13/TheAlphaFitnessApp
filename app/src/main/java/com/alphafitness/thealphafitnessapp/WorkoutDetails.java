@@ -4,7 +4,6 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,12 +12,12 @@ import android.view.ViewGroup;
 /**
  * A simple {@link Fragment} subclass.
  * Activities that contain this fragment must implement the
- * {@link RecordWorkout.OnFragmentInteractionListener} interface
+ * {@link WorkoutDetails.OnFragmentInteractionListener} interface
  * to handle interaction events.
- * Use the {@link RecordWorkout#newInstance} factory method to
+ * Use the {@link WorkoutDetails#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class RecordWorkout extends Fragment {
+public class WorkoutDetails extends Fragment {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -30,7 +29,7 @@ public class RecordWorkout extends Fragment {
 
     private OnFragmentInteractionListener mListener;
 
-    public RecordWorkout() {
+    public WorkoutDetails() {
         // Required empty public constructor
     }
 
@@ -40,11 +39,11 @@ public class RecordWorkout extends Fragment {
      *
      * @param param1 Parameter 1.
      * @param param2 Parameter 2.
-     * @return A new instance of fragment RecordWorkout.
+     * @return A new instance of fragment WorkoutDetails.
      */
     // TODO: Rename and change types and number of parameters
-    public static RecordWorkout newInstance(String param1, String param2) {
-        RecordWorkout fragment = new RecordWorkout();
+    public static WorkoutDetails newInstance(String param1, String param2) {
+        WorkoutDetails fragment = new WorkoutDetails();
         Bundle args = new Bundle();
         args.putString(ARG_PARAM1, param1);
         args.putString(ARG_PARAM2, param2);
@@ -65,7 +64,7 @@ public class RecordWorkout extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_record_workout, container, false);
+        return inflater.inflate(R.layout.fragment_workout_details, container, false);
     }
 
     // TODO: Rename method, update argument and hook method into UI event

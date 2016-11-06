@@ -16,4 +16,6 @@
     <string name="workouts">Workouts</string>
     <string name="calories_burned">Calories Burned</string>
     <string name="all_time">All Time</string>
+    <string name="start_workout">Start Workout</string>
+    <string name="stop_workout">Stop Workout</string>
 </resources>

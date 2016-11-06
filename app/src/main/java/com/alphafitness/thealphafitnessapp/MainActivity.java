@@ -59,7 +59,7 @@ public class MainActivity extends FragmentActivity implements WorkoutDetails.OnF
                 getSupportFragmentManager().beginTransaction();
 
         Configuration config = getResources().getConfiguration();
-        Log.d("DEBUG", "orientation changed");
+        //Log.d("DEBUG", "orientation changed");
         if(config.orientation == Configuration.ORIENTATION_LANDSCAPE) {
             transaction.replace(R.id.fragment_container, workoutDetails);
         } else {

@@ -32,7 +32,7 @@
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 app:srcCompat="@android:drawable/sym_def_app_icon"
-                android:id="@+id/imageButton"
+                android:id="@+id/profileButton"
                 android:layout_weight="1" />
 
         </LinearLayout>
@@ -108,10 +108,11 @@
             android:gravity="center">
             <Button
                 style="@style/button_default"
+                android:id="@+id/btn_record_workout"
                 android:background="@drawable/button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Start Workout"/>
+                android:text="@string/start_workout"/>
         </LinearLayout>
     </LinearLayout>
 </FrameLayout>

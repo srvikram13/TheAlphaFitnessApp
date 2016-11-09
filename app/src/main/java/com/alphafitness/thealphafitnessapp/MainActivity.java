@@ -23,43 +23,22 @@ public class MainActivity extends FragmentActivity implements WorkoutDetails.OnF
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        //Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-//        setSupportActionBar(toolbar);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
-
-        Configuration config = getResources().getConfiguration();
         workoutDetails = new WorkoutDetails();
         recordWorkout = new RecordWorkout();
 
-        FragmentTransaction transaction =
-                getSupportFragmentManager().beginTransaction();
-        Log.d("DEBUG", "check this");
-        if(config.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            transaction.replace(R.id.fragment_container, workoutDetails);
-        } else {
-            transaction.replace(R.id.fragment_container, recordWorkout);
-        }
-        transaction.commit();
+        updateDisplayFragment();
     }
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
-
-        // Checks the orientation of the screen
-
+        updateDisplayFragment();
+    }
+    private void updateDisplayFragment() {
         FragmentTransaction transaction =
                 getSupportFragmentManager().beginTransaction();
 
         Configuration config = getResources().getConfiguration();
-        //Log.d("DEBUG", "orientation changed");
         if(config.orientation == Configuration.ORIENTATION_LANDSCAPE) {
             transaction.replace(R.id.fragment_container, workoutDetails);
         } else {

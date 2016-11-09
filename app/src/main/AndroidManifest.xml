@@ -2,6 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.alphafitness.thealphafitnessapp">
 
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -28,7 +30,13 @@
             android:name=".MyService"
             android:enabled="true"
             android:exported="true"
-            android:process=":anotherProc"></service>
+            android:process=":anotherProc">
+
+        </service>
+
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="@string/google_map_key" />
     </application>
 
 </manifest>

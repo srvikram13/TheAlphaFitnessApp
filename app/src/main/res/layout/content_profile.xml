@@ -44,6 +44,7 @@
                 android:id="@+id/username"/>
         </LinearLayout>
         <LinearLayout
+            style="@style/border_bottom_only"
             android:orientation="horizontal"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -52,185 +53,219 @@
                 style="@style/heading4"
                 android:text="@string/gender"
                 android:layout_width="0dp"
-                android:layout_weight="1"/>
-            <TextView
+                android:layout_weight="3"/>
+
+            <Spinner
                 style="@style/heading4"
-                android:textAlignment="center"
-                android:background="@android:color/darker_gray"
-                android:text="Male"
                 android:layout_width="0dp"
-                android:layout_weight="1"
-                android:id="@+id/user_gender"/>
+                android:textAlignment="textStart"
+                android:layout_height="wrap_content"
+                android:id="@+id/user_gender"
+                android:layout_weight="3" />
+
             <TextView
                 style="@style/heading4"
                 android:text="@string/weight"
                 android:layout_width="0dp"
-                android:layout_weight="1"/>
+                android:layout_weight="2"/>
+            <!-- Dummy item to prevent AutoCompleteTextView from receiving focus -->
+            <LinearLayout
+                android:focusable="true"
+                android:focusableInTouchMode="true"
+                android:layout_width="0px"
+                android:layout_height="0px"/>
+            <EditText
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:inputType="number"
+                android:ems="10"
+                android:textAlignment="textEnd"
+                android:id="@+id/user_weight"
+                android:layout_weight="2" />
+
             <TextView
                 style="@style/heading4"
                 android:textAlignment="center"
-                android:background="@android:color/darker_gray"
-                android:text="180 lbs"
+                android:text="lbs"
                 android:layout_width="0dp"
-                android:layout_weight="1"
-                android:id="@+id/user_weight"/>
+                android:layout_weight="1"/>
         </LinearLayout>
 
-        <LinearLayout
-            android:orientation="horizontal"
+        <ScrollView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-            <TextView
+            android:layout_height="match_parent">
+            <LinearLayout
+                android:orientation="vertical"
                 android:layout_width="match_parent"
-                style="@style/heading3"
-                android:background="@android:color/darker_gray"
-                android:text="@string/average_weekly" />
-        </LinearLayout>
-        <LinearLayout
-            android:orientation="horizontal"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-            <TextView
-                android:layout_width="match_parent"
-                style="@style/heading3"
-                android:text="@string/distance"
-                android:layout_weight="1"/>
-            <TextView
-                android:layout_width="match_parent"
-                style="@style/heading3"
-                android:text="2.4 mi"
-                android:textAlignment="textEnd"
-                android:id="@+id/distance_walked"
-                android:layout_weight="1"/>
-        </LinearLayout>
-        <LinearLayout
-            android:orientation="horizontal"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-            <TextView
-                android:layout_width="match_parent"
-                style="@style/heading3"
-                android:text="@string/time"
-                android:layout_weight="1"/>
-            <TextView
-                android:layout_width="match_parent"
-                style="@style/heading3"
-                android:text="1 hr 34 min 05 sec"
-                android:textAlignment="textEnd"
-                android:id="@+id/time_walked"
-                android:layout_weight="1"/>
-        </LinearLayout>
-        <LinearLayout
-            android:orientation="horizontal"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-            <TextView
-                android:layout_width="match_parent"
-                style="@style/heading3"
-                android:text="@string/workouts"
-                android:layout_weight="1"/>
-            <TextView
-                android:layout_width="match_parent"
-                style="@style/heading3"
-                android:text="2 times"
-                android:textAlignment="textEnd"
-                android:id="@+id/workout_count"
-                android:layout_weight="1"/>
-        </LinearLayout>
-        <LinearLayout
-            android:orientation="horizontal"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-            <TextView
-                android:layout_width="match_parent"
-                style="@style/heading3"
-                android:text="@string/calories_burned"
-                android:layout_weight="1"/>
-            <TextView
-                android:layout_width="match_parent"
-                style="@style/heading3"
-                android:text="1,000 Cal"
-                android:textAlignment="textEnd"
-                android:id="@+id/calories"
-                android:layout_weight="1"/>
-        </LinearLayout>
-        <LinearLayout
-            android:orientation="horizontal"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-            <TextView
-                android:layout_width="match_parent"
-                style="@style/heading3"
-                android:background="@android:color/darker_gray"
-                android:text="@string/all_time" />
-        </LinearLayout>
-        <LinearLayout
-            android:orientation="horizontal"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-            <TextView
-                android:layout_width="match_parent"
-                style="@style/heading3"
-                android:text="@string/distance"
-                android:layout_weight="1"/>
-            <TextView
-                android:layout_width="match_parent"
-                style="@style/heading3"
-                android:text="2.4 mi"
-                android:textAlignment="textEnd"
-                android:id="@+id/all_distance_walked"
-                android:layout_weight="1"/>
-        </LinearLayout>
-        <LinearLayout
-            android:orientation="horizontal"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-            <TextView
-                android:layout_width="match_parent"
-                style="@style/heading3"
-                android:text="@string/time"
-                android:layout_weight="1"/>
-            <TextView
-                android:layout_width="match_parent"
-                style="@style/heading3"
-                android:text="1 hr 34 min 05 sec"
-                android:textAlignment="textEnd"
-                android:id="@+id/all_time_walked"
-                android:layout_weight="1"/>
-        </LinearLayout>
-        <LinearLayout
-            android:orientation="horizontal"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-            <TextView
-                android:layout_width="match_parent"
-                style="@style/heading3"
-                android:text="@string/workouts"
-                android:layout_weight="1"/>
-            <TextView
-                android:layout_width="match_parent"
-                style="@style/heading3"
-                android:text="2 times"
-                android:textAlignment="textEnd"
-                android:id="@+id/all_workout"
-                android:layout_weight="1"/>
-        </LinearLayout>
-        <LinearLayout
-            android:orientation="horizontal"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-            <TextView
-                android:layout_width="match_parent"
-                style="@style/heading3"
-                android:text="@string/calories_burned"
-                android:layout_weight="1"/>
-            <TextView
-                android:layout_width="match_parent"
-                style="@style/heading3"
-                android:text="1,000 Cal"
-                android:textAlignment="textEnd"
-                android:id="@+id/all_calories"
-                android:layout_weight="1"/>
-        </LinearLayout>
+                android:layout_height="wrap_content">
+                <LinearLayout
+                    android:orientation="horizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        style="@style/heading3"
+                        android:background="@android:color/darker_gray"
+                        android:text="@string/average_weekly" />
+                </LinearLayout>
+                <LinearLayout
+                    style="@style/border_bottom_only"
+                    android:orientation="horizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    >
+                    <TextView
+                        android:layout_width="match_parent"
+                        style="@style/heading3"
+                        android:text="@string/distance"
+                        android:layout_weight="1"/>
+                    <TextView
+                        android:layout_width="match_parent"
+                        style="@style/heading3"
+                        android:text="2.4 mi"
+                        android:textAlignment="textEnd"
+                        android:id="@+id/distance_walked"
+                        android:layout_weight="1"/>
+                </LinearLayout>
+                <LinearLayout
+                    style="@style/border_bottom_only"
+                    android:orientation="horizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+                    <TextView
+                        android:layout_width="match_parent"
+                        style="@style/heading3"
+                        android:text="@string/time"
+                        android:layout_weight="1"/>
+                    <TextView
+                        android:layout_width="247dp"
+                        style="@style/heading3"
+                        android:text="1 hr 34 min 05 sec"
+                        android:textAlignment="textEnd"
+                        android:id="@+id/time_walked" />
+                </LinearLayout>
+                <LinearLayout
+                    style="@style/border_bottom_only"
+                    android:orientation="horizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+                    <TextView
+                        android:layout_width="match_parent"
+                        style="@style/heading3"
+                        android:text="@string/workouts"
+                        android:layout_weight="1"/>
+                    <TextView
+                        android:layout_width="match_parent"
+                        style="@style/heading3"
+                        android:text="2 times"
+                        android:textAlignment="textEnd"
+                        android:id="@+id/workout_count"
+                        android:layout_weight="1"/>
+                </LinearLayout>
+                <LinearLayout
+                    style="@style/border_bottom_only"
+                    android:orientation="horizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+                    <TextView
+                        android:layout_width="match_parent"
+                        style="@style/heading3"
+                        android:text="@string/calories_burned"
+                        android:layout_weight="1"/>
+                    <TextView
+                        android:layout_width="match_parent"
+                        style="@style/heading3"
+                        android:text="1,000 Cal"
+                        android:textAlignment="textEnd"
+                        android:id="@+id/calories"
+                        android:layout_weight="1"/>
+                </LinearLayout>
+                <LinearLayout
+                    style="@style/border_bottom_only"
+                    android:orientation="horizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+                    <TextView
+                        android:layout_width="match_parent"
+                        style="@style/heading3"
+                        android:background="@android:color/darker_gray"
+                        android:text="@string/all_time" />
+                </LinearLayout>
+                <LinearLayout
+                    style="@style/border_bottom_only"
+                    android:orientation="horizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+                    <TextView
+                        android:layout_width="match_parent"
+                        style="@style/heading3"
+                        android:text="@string/distance"
+                        android:layout_weight="1"/>
+                    <TextView
+                        android:layout_width="match_parent"
+                        style="@style/heading3"
+                        android:text="2.4 mi"
+                        android:textAlignment="textEnd"
+                        android:id="@+id/all_distance_walked"
+                        android:layout_weight="1"/>
+                </LinearLayout>
+                <LinearLayout
+                    style="@style/border_bottom_only"
+                    android:orientation="horizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+                    <TextView
+                        android:layout_width="match_parent"
+                        style="@style/heading3"
+                        android:text="@string/time"
+                        android:layout_weight="1"/>
+                    <TextView
+                        android:layout_width="249dp"
+                        style="@style/heading3"
+                        android:text="1 hr 34 min 05 sec"
+                        android:textAlignment="textEnd"
+                        android:id="@+id/all_time_walked" />
+                </LinearLayout>
+                <LinearLayout
+                    style="@style/border_bottom_only"
+                    android:orientation="horizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+                    <TextView
+                        android:layout_width="match_parent"
+                        style="@style/heading3"
+                        android:text="@string/workouts"
+                        android:layout_weight="1"/>
+                    <TextView
+                        android:layout_width="match_parent"
+                        style="@style/heading3"
+                        android:text="2 times"
+                        android:textAlignment="textEnd"
+                        android:id="@+id/all_workout"
+                        android:layout_weight="1"/>
+                </LinearLayout>
+                <LinearLayout
+                    style="@style/border_bottom_only"
+                    android:orientation="horizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+                    <TextView
+                        android:layout_width="match_parent"
+                        style="@style/heading3"
+                        android:text="@string/calories_burned"
+                        android:layout_weight="1"/>
+                    <TextView
+                        android:layout_width="match_parent"
+                        style="@style/heading3"
+                        android:text="1,000 Cal"
+                        android:textAlignment="textEnd"
+                        android:id="@+id/all_calories"
+                        android:layout_weight="1"/>
+                </LinearLayout>
+            </LinearLayout>
+
+        </ScrollView>
     </LinearLayout>
 </RelativeLayout>

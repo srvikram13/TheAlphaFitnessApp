@@ -104,7 +104,7 @@
             android:orientation="horizontal"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@android:color/holo_blue_dark"
+            android:background="@color/colorPrimary"
             android:gravity="center">
             <Button
                 style="@style/button_default"

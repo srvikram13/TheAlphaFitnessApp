@@ -3,6 +3,7 @@
     package="com.alphafitness.thealphafitnessapp">
 
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-feature android:name="android.hardware.sensor.stepcounter" android:required="true" />
 
     <application
         android:allowBackup="true"
@@ -27,10 +28,15 @@
             android:theme="@style/AppTheme.NoActionBar" />
 
         <service
-            android:name=".MyService"
+            android:name="com.alphafitness.thealphafitnessapp.MyService"
             android:enabled="true"
             android:exported="true"
             android:process=":anotherProc">
+
+            <intent-filter>
+                <action android:name="com.alphafitness.thealphafitnessapp.MyService" >
+                </action>
+            </intent-filter>
 
         </service>
 

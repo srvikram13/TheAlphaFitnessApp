@@ -1,5 +1,6 @@
 package com.alphafitness.thealphafitnessapp;
 
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
@@ -28,6 +29,9 @@ public class MainActivity extends FragmentActivity implements WorkoutDetails.OnF
         recordWorkout = new RecordWorkout();
 
         updateDisplayFragment();
+
+        // start service
+        startService(new Intent(MainActivity.this, MyService.class));
     }
     @Override
     public void onConfigurationChanged(Configuration newConfig) {

@@ -8,6 +8,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.github.mikephil.charting.charts.LineChart;
+import com.github.mikephil.charting.data.Entry;
+import com.github.mikephil.charting.data.LineData;
+import com.github.mikephil.charting.data.LineDataSet;
+
+import java.util.ArrayList;
+import java.util.List;
+
 
 /**
  * A simple {@link Fragment} subclass.
@@ -65,6 +73,34 @@ public class WorkoutDetails extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_workout_details, container, false);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        drawChart();
+    }
+
+    private void drawChart() {
+        LineChart chart = (LineChart) getView().findViewById(R.id.chart);
+        List<Entry> entries = new ArrayList<Entry>();
+        entries.add(new Entry(10, 35));
+        entries.add(new Entry(20, 65));
+        entries.add(new Entry(30, 40));
+        entries.add(new Entry(40, 66));
+        entries.add(new Entry(50, 70));
+        entries.add(new Entry(60, 72));
+        entries.add(new Entry(70, 85));
+
+        LineDataSet dataSet = new LineDataSet(entries, "Label"); // add entries to dataset
+        dataSet.setColor(0);
+        dataSet.setValueTextColor(1); // styling, ...
+
+
+        LineData lineData = new LineData(dataSet);
+        chart.setData(lineData);
+        chart.invalidate(); // refresh
     }
 
     // TODO: Rename method, update argument and hook method into UI event

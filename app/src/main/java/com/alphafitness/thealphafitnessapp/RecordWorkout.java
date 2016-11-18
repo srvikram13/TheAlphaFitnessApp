@@ -4,6 +4,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -134,6 +135,7 @@ public class RecordWorkout extends Fragment implements OnMapReadyCallback {
         View view = inflater.inflate(R.layout.fragment_record_workout, container, false);
 
         final Button btnWorkout = (Button) view.findViewById(R.id.btn_record_workout);
+
         btnWorkout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -153,8 +155,7 @@ public class RecordWorkout extends Fragment implements OnMapReadyCallback {
                     // start counting
                     try {
                         Log.d(TAG, "Calling startCounting().");
-                        boolean retVal = myService.startCounting();
-                        Log.d(TAG, "After startCounting(), retVal: " + retVal);
+                        myService.startCounting();
                     } catch (RemoteException e) {
                         Log.e(TAG, "Error occured in MyService while trying to start counting.");
                         e.printStackTrace();
@@ -247,6 +248,12 @@ public class RecordWorkout extends Fragment implements OnMapReadyCallback {
     @Override
     public void onResume() {
         super.onResume();
+        final Button btnWorkout = (Button) getView().findViewById(R.id.btn_record_workout);
+        if (isCounting()) {
+            btnWorkout.setText(R.string.stop_workout);
+        } else {
+            btnWorkout.setText(R.string.start_workout);
+        }
         mMapView.onResume();
     }
 
@@ -284,5 +291,10 @@ public class RecordWorkout extends Fragment implements OnMapReadyCallback {
     public void onLowMemory() {
         super.onLowMemory();
         mMapView.onLowMemory();
+    }
+
+    private boolean isCounting() {
+        SharedPreferences preferences = getContext().getSharedPreferences("AlphaFitness", Context.MODE_PRIVATE);
+        return preferences.getBoolean("IS_COUNTING", false);
     }
 }

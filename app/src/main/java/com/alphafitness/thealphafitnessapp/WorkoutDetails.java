@@ -8,6 +8,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.github.mikephil.charting.charts.LineChart;
+import com.github.mikephil.charting.data.Entry;
+import com.github.mikephil.charting.data.LineData;
+import com.github.mikephil.charting.data.LineDataSet;
+
+import java.util.ArrayList;
+import java.util.List;
+
 
 /**
  * A simple {@link Fragment} subclass.
@@ -58,6 +66,28 @@ public class WorkoutDetails extends Fragment {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
+
+        // TODO: Fetch workout data from db
+
+        LineChart chart = (LineChart) getActivity().findViewById(R.id.chart);
+        List<Entry> entries = new ArrayList<Entry>();
+
+        // turn your data into Entry objects
+        entries.add(new Entry(4f, 0));
+        entries.add(new Entry(8f, 1));
+        entries.add(new Entry(6f, 2));
+        entries.add(new Entry(12f, 3));
+        entries.add(new Entry(18f, 4));
+        entries.add(new Entry(9f, 5));
+
+//        entries.add(new Entry(data.getValueX(), data.getValueY()));
+
+        LineDataSet dataSet = new LineDataSet(entries, "Label"); // add entries to dataset
+//        dataSet.setColor(...);
+//        dataSet.setValueTextColor(...); // styling, ...
+        LineData lineData = new LineData(dataSet);
+        chart.setData(lineData);
+        chart.invalidate(); // refresh
     }
 
     @Override
@@ -67,12 +97,6 @@ public class WorkoutDetails extends Fragment {
         return inflater.inflate(R.layout.fragment_workout_details, container, false);
     }
 
-    // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
-        }
-    }
 
     @Override
     public void onAttach(Context context) {

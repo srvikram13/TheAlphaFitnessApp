@@ -1,6 +1,7 @@
 package com.alphafitness.thealphafitnessapp;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -94,7 +95,7 @@ public class WorkoutDetails extends Fragment {
         entries.add(new Entry(70, 85));
 
         LineDataSet dataSet = new LineDataSet(entries, "Label"); // add entries to dataset
-        dataSet.setColor(0);
+        dataSet.setColor(Color.BLUE);
         dataSet.setValueTextColor(1); // styling, ...
 
 

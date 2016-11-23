@@ -27,6 +27,11 @@ public class MyService extends Service implements SensorEventListener {
 
     DBHelper dbHelper;
 
+    /*
+    http://javapapers.com/android/draw-path-on-google-maps-android-api/
+
+     */
+
     public MyService() {
     }
     @Override

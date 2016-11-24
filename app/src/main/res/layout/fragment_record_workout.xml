@@ -29,9 +29,9 @@
             <ImageButton
                 style="@style/button_default"
                 android:background="@drawable/button"
-                android:layout_width="0dp"
+                android:layout_width="16dp"
                 android:layout_height="match_parent"
-                app:srcCompat="@android:drawable/sym_def_app_icon"
+                app:srcCompat="@android:mipmap/sym_def_app_icon"
                 android:id="@+id/profileButton"
                 android:layout_weight="1" />
 

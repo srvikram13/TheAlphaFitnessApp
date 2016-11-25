@@ -31,6 +31,54 @@
         <item name="android:padding">10dp</item>
     </style>
 
+    <style name="valueBig" parent="@android:style/TextAppearance.Holo.Widget.ActionMode.Title">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textAlignment">viewStart</item>
+        <item name="android:textColor">@android:color/primary_text_light</item>
+        <!--<item name="android:textStyle">bold</item>-->
+        <!--<item name="android:typeface">monospace</item>-->
+        <item name="android:textSize">36sp</item>
+        <item name="android:padding">2dp</item>
+        <item name="android:layout_margin">4dp</item>
+    </style>
+
+    <style name="valueMedium" parent="@android:style/TextAppearance.Holo.Widget.ActionMode.Title">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textAlignment">viewStart</item>
+        <item name="android:textColor">@android:color/primary_text_light</item>
+        <!--<item name="android:textStyle">bold</item>-->
+        <!--<item name="android:typeface">monospace</item>-->
+        <item name="android:layout_margin">2dp</item>
+        <item name="android:textSize">20sp</item>
+    </style>
+
+    <style name="heading6" parent="@android:style/TextAppearance.Medium">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textAlignment">viewStart</item>
+        <item name="android:textColor">@android:color/primary_text_light</item>
+        <!--<item name="android:textStyle">bold</item>-->
+        <!--<item name="android:typeface">monospace</item>-->
+        <item name="android:textSize">11dp</item>
+        <item name="android:padding">2dp</item>
+        <item name="android:gravity">top</item>
+    </style>
+
+    <style name="heading5" parent="@android:style/TextAppearance.Medium">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textAlignment">viewStart</item>
+        <item name="android:textColor">@android:color/primary_text_light</item>
+        <!--<item name="android:textStyle">bold</item>-->
+        <!--<item name="android:typeface">monospace</item>-->
+        <item name="android:textSize">14dp</item>
+        <item name="android:padding">2dp</item>
+        <item name="android:layout_margin">2dp</item>
+        <item name="android:gravity">top</item>
+    </style>
+
     <style name="heading4" parent="@android:style/TextAppearance.Medium">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>

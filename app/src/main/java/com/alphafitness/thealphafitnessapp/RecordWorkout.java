@@ -228,7 +228,7 @@ public class RecordWorkout extends Fragment implements OnMapReadyCallback {
         criteria.setAccuracy(Criteria.ACCURACY_FINE);
         criteria.setPowerRequirement(Criteria.POWER_LOW);
         String locationProvider = locationManager.getBestProvider(criteria, true);
-
+        Log.d(TAG, locationProvider +" locationProvider ");
         if(ActivityCompat.checkSelfPermission(getActivity(), android.Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED
                 && ActivityCompat.checkSelfPermission(getActivity(), android.Manifest.permission.ACCESS_COARSE_LOCATION)

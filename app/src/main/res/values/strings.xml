@@ -23,4 +23,8 @@
     <string name="start_workout">Start Workout</string>
     <string name="stop_workout">Stop Workout</string>
     <string name="google_map_key">AIzaSyDqD7uKnXjcRqumZe1veVeloyji6j5MSpI</string>
+    <string name="average">AVG</string>
+    <string name="max">MAX</string>
+    <string name="min">MIN</string>
+
 </resources>

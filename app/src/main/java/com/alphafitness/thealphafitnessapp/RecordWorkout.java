@@ -236,8 +236,8 @@ public class RecordWorkout extends Fragment implements OnMapReadyCallback {
             return;
         }
         Location location = locationManager.getLastKnownLocation(locationProvider);
-        Log.d(TAG, " location: "+location.toString());
         if(location != null) {
+            Log.d(TAG, " location: "+location.toString());
             googleMap.addMarker(new MarkerOptions().position(new LatLng(location.getLatitude(), location.getLongitude())).title("Marker"));
             // Move the camera instantly to hamburg with a zoom of 15.
             googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(location.getLatitude(), location.getLongitude()), 15));

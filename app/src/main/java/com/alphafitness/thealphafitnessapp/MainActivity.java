@@ -48,7 +48,7 @@ public class MainActivity extends FragmentActivity implements WorkoutDetails.OnF
         } else {
             transaction.replace(R.id.fragment_container, recordWorkout);
         }
-        transaction.commit();
+        transaction.commitAllowingStateLoss();
     }
 
     @Override

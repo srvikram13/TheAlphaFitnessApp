@@ -228,7 +228,6 @@ public class RecordWorkout extends Fragment implements OnMapReadyCallback {
         criteria.setAccuracy(Criteria.ACCURACY_FINE);
         criteria.setPowerRequirement(Criteria.POWER_LOW);
         String locationProvider = locationManager.getBestProvider(criteria, true);
-        Log.d(TAG, locationProvider +" locationProvider ");
         if(ActivityCompat.checkSelfPermission(getActivity(), android.Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED
                 && ActivityCompat.checkSelfPermission(getActivity(), android.Manifest.permission.ACCESS_COARSE_LOCATION)
@@ -237,10 +236,13 @@ public class RecordWorkout extends Fragment implements OnMapReadyCallback {
             return;
         }
         Location location = locationManager.getLastKnownLocation(locationProvider);
-        googleMap.addMarker(new MarkerOptions().position(new LatLng(location.getLatitude(), location.getLongitude())).title("Marker"));
+        Log.d(TAG, " location: "+location.toString());
+        if(location != null) {
+            googleMap.addMarker(new MarkerOptions().position(new LatLng(location.getLatitude(), location.getLongitude())).title("Marker"));
+            // Move the camera instantly to hamburg with a zoom of 15.
+            googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(location.getLatitude(), location.getLongitude()), 15));
+        }
 
-        // Move the camera instantly to hamburg with a zoom of 15.
-        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(location.getLatitude(), location.getLongitude()), 15));
     }
 
     /**

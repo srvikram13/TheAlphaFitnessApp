@@ -1,10 +1,12 @@
 package com.alphafitness.thealphafitnessapp;
 
+
 import android.content.Context;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,7 +19,6 @@ import com.github.mikephil.charting.data.LineDataSet;
 import java.util.ArrayList;
 import java.util.List;
 
-
 /**
  * A simple {@link Fragment} subclass.
  * Activities that contain this fragment must implement the
@@ -27,6 +28,8 @@ import java.util.List;
  * create an instance of this fragment.
  */
 public class WorkoutDetails extends Fragment {
+
+    private static final String TAG = "DEBUG: WorkoutDetails";
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -35,6 +38,8 @@ public class WorkoutDetails extends Fragment {
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
+
+    private DBHelper dbHelper;
 
     private OnFragmentInteractionListener mListener;
 
@@ -67,6 +72,8 @@ public class WorkoutDetails extends Fragment {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
+        dbHelper = new DBHelper(getActivity().getApplicationContext());
+        Log.d(TAG, dbHelper.getInfo().toString());
     }
 
     @Override

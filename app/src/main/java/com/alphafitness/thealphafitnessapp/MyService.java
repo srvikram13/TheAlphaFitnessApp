@@ -40,7 +40,7 @@ public class MyService extends Service implements SensorEventListener {
         Log.d(TAG, "Inside onCreate()");
         Toast.makeText(this, "Inside onCreate() of MyService", Toast.LENGTH_SHORT).show();
 
-        dbHelper = new DBHelper(getApplicationContext());
+        dbHelper = DBHelper.getInstance(getApplicationContext());
 
         final MyService mySvc = this;
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
@@ -99,23 +99,29 @@ public class MyService extends Service implements SensorEventListener {
         float currWorkoutDistance = getWorkoutDistance(currStepCount);
         int currWorkoutCalories = getWorkoutCalories(currStepCount, totalWorkoutTimeInSecs);
 
+        StepData sd = new StepData();
+        sd.timestamp = Long.toString(currTime);
+        sd.calories = currWorkoutCalories;
+        sd.count = currStepCount;
+        dbHelper.insertStepData(sd);
+        
         Log.d(TAG, "totalWorkoutTimeInSecs: " + totalWorkoutTimeInSecs);
         Log.d(TAG, "currWorkoutDistance: " + currWorkoutDistance);
         Log.d(TAG, "currWorkoutCalories: " + currWorkoutCalories);
 
         // get All Time Data from DB
-        AllTimeData allTimeDate = dbHelper.getAllTimeData();
-        Log.d(TAG, "Old allTimeDate: " + allTimeDate.toString());
+        AllTimeData allTimeData = dbHelper.getAllTimeData();
+        Log.d(TAG, "Old allTimeData: " + allTimeData.toString());
 
         // add current workout data to all time data
-        allTimeDate.noOfWorkouts++;
-        allTimeDate.time += totalWorkoutTimeInSecs;
-        allTimeDate.distance += currWorkoutDistance;
-        allTimeDate.calories += currWorkoutCalories;
+        allTimeData.noOfWorkouts++;
+        allTimeData.time += totalWorkoutTimeInSecs;
+        allTimeData.distance += currWorkoutDistance;
+        allTimeData.calories += currWorkoutCalories;
 
         // set All Time Data in DB
-        dbHelper.insertAllTimeData(allTimeDate);
-        Log.d(TAG, "New allTimeDate: " + allTimeDate.toString());
+        dbHelper.insertAllTimeData(allTimeData);
+        Log.d(TAG, "New allTimeData: " + allTimeData.toString());
     }
 
     private int getWorkoutCalories(int currStepCount, long totalWorkoutTimeInSecs) {

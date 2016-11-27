@@ -30,7 +30,7 @@ public class ProfileActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile);
 
-        dbHelper = new DBHelper(getApplicationContext());
+        dbHelper = DBHelper.getInstance(getApplicationContext());
 
         Spinner gender = (Spinner)findViewById(R.id.user_gender);
 

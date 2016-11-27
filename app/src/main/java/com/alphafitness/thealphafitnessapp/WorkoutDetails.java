@@ -72,7 +72,7 @@ public class WorkoutDetails extends Fragment {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
-        dbHelper = new DBHelper(getActivity().getApplicationContext());
+        dbHelper = DBHelper.getInstance(getActivity().getApplicationContext());
         Log.d(TAG, dbHelper.getStepsData().toString());
     }
 

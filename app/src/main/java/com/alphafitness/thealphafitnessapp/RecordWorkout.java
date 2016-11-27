@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationManager;
@@ -29,6 +30,7 @@ import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.PolylineOptions;
 
 import static android.content.Context.BIND_AUTO_CREATE;
 
@@ -61,6 +63,12 @@ public class RecordWorkout extends Fragment implements OnMapReadyCallback {
 
     IMyInterface myService;
     RemoteConnection remoteConnection = null;
+
+
+    private static final LatLng LOWER_MANHATTAN = new LatLng(40.722543,
+            -73.998585);
+    private static final LatLng TIMES_SQUARE = new LatLng(40.7577, -73.9857);
+    private static final LatLng BROOKLYN_BRIDGE = new LatLng(40.7057, -73.9964);
 
     class RemoteConnection implements ServiceConnection {
         // Called when the connection with the service is established
@@ -242,7 +250,14 @@ public class RecordWorkout extends Fragment implements OnMapReadyCallback {
             // Move the camera instantly to hamburg with a zoom of 15.
             googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(location.getLatitude(), location.getLongitude()), 15));
         }
-
+        googleMap
+                .addPolyline((new PolylineOptions())
+                        .add(TIMES_SQUARE, BROOKLYN_BRIDGE, LOWER_MANHATTAN,
+                                TIMES_SQUARE).width(5).color(Color.BLUE)
+                        .geodesic(true));
+        // move camera to zoom on map
+        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(LOWER_MANHATTAN,
+                13));
     }
 
     /**

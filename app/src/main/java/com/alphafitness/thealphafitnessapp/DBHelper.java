@@ -1,0 +1,229 @@
+package com.alphafitness.thealphafitnessapp;
+
+import static android.provider.BaseColumns._ID;
+import android.content.Context;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
+
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+public class DBHelper extends SQLiteOpenHelper {
+    private static final String TAG = "DEBUG: DBHelper";
+
+    private static final String DATABASE_NAME = "alphafitness.db";
+    private static final int DATABASE_VERSION = 1;
+
+    public static final String TABLE_ALL_TIME = "alltime";
+    // Columns in the 'alltime' table
+    public static final String ALL_TIME_DISTANCE = "distance";
+    public static final String ALL_TIME_TIME = "time";
+    public static final String ALL_TIME_NUM_OF_WORKOUTS = "noofworkouts";
+    public static final String ALL_TIME_CALORIES = "calories";
+
+    public static final String TABLE_STEPS = "steps";
+    // Columns in the 'steps' table
+    public static final String STEPS_TIMESTAMP = "timestamp";
+    public static final String STEPS_COUNT = "count";
+    public static final String STEPS_CALORIES = "calories";
+
+    public static final String TABLE_INFO = "info";
+    // Columns in the 'info' table
+    public static final String INFO_START_TIME = "starttime";   // start time of the first workout
+
+    private static DBHelper mInstance = null;
+    public static DBHelper getInstance(Context ctx) {
+
+        // Use the application context, which will ensure that you
+        // don't accidentally leak an Activity's context.
+        // See this article for more information: http://bit.ly/6LRzfx
+        if (mInstance == null) {
+            mInstance = new DBHelper(ctx.getApplicationContext());
+        }
+        return mInstance;
+    }
+
+    private DBHelper(Context ctx) {
+        super(ctx, DATABASE_NAME, null, DATABASE_VERSION);
+    }
+
+    @Override
+    public void onCreate(SQLiteDatabase db) {
+        db.execSQL("CREATE TABLE " + TABLE_ALL_TIME + " ("
+                + ALL_TIME_DISTANCE + " REAL NOT NULL, "
+                + ALL_TIME_TIME + " INTEGER NOT NULL, "
+                + ALL_TIME_NUM_OF_WORKOUTS + " INTEGER NOT NULL, "
+                + ALL_TIME_CALORIES + " INTEGER NOT NULL);");
+
+        db.execSQL("CREATE TABLE " + TABLE_STEPS + " ("
+                + STEPS_TIMESTAMP + " TEXT NOT NULL, "
+                + STEPS_COUNT + " INTEGER NOT NULL, "
+                + STEPS_CALORIES + " INTEGER NOT NULL);");
+
+        db.execSQL("CREATE TABLE " + TABLE_INFO + " ("
+                + INFO_START_TIME + " TEXT NOT NULL);");
+    }
+
+    @Override
+    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        // When Android detects you’re referencing an old database (based on
+        // the version number), it will call the onUpgrade( ) method
+        deleteAllTablesAndReCreate(db);
+    }
+
+    private void deleteAllTablesAndReCreate(SQLiteDatabase db) {
+        db.execSQL("DROP TABLE " + TABLE_ALL_TIME + ";");
+        db.execSQL("DROP TABLE " + TABLE_STEPS + ";");
+        db.execSQL("DROP TABLE " + TABLE_INFO + ";");
+        onCreate(db);
+    }
+
+    /**
+     * Insert StepData into 'steps' table
+     * @param stepData
+     */
+    public void insertStepData(StepData stepData) {
+        Log.d(TAG, "in insertStepData"+stepData.toString());
+        SQLiteDatabase db  = this.getReadableDatabase();
+        db.execSQL("INSERT INTO " + TABLE_STEPS + " VALUES ('" + stepData.timestamp + "', " + stepData.count + ", " + stepData.calories + ")");
+        db.close();
+    }
+
+    /**
+     * Get all records (timestamp, count of steps in last 5 mins) from 'steps' table.
+     * @return list of StepData objects
+     */
+    public List<StepData> getStepsData() {
+        String selectQuery = "SELECT " + STEPS_TIMESTAMP + ", " + STEPS_COUNT + " FROM " + TABLE_STEPS;
+        SQLiteDatabase db  = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(selectQuery, null);
+
+        List<StepData> data = new ArrayList<StepData>();
+        if (cursor.moveToFirst()) {
+            do {
+                // get the data into array, or class variable
+                StepData currData = new StepData();
+                currData.timestamp = cursor.getString(cursor.getColumnIndex(STEPS_TIMESTAMP));
+                currData.count = cursor.getInt(cursor.getColumnIndex(STEPS_COUNT));
+                currData.calories = cursor.getInt(cursor.getColumnIndex(STEPS_CALORIES));
+                data.add(currData);
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+        db.close();
+        return data;
+    }
+
+    /**
+     * Insert AllTimeData into 'alltime' table
+     * @param allTimeData
+     */
+    public void insertAllTimeData(AllTimeData allTimeData) {
+        SQLiteDatabase db  = this.getReadableDatabase();
+        db.execSQL("INSERT INTO " + TABLE_ALL_TIME + " VALUES (" + allTimeData.distance + ", " + allTimeData.time + ", " + allTimeData.noOfWorkouts + ", " + allTimeData.calories + ")");
+        db.close();
+    }
+
+    /**
+     * Get the all time data from 'alltime' table
+     * @return AllTimeData object
+     */
+    public AllTimeData getAllTimeData() {
+        String selectQuery = "SELECT * FROM " + TABLE_ALL_TIME;
+        SQLiteDatabase db  = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(selectQuery, null);
+
+        AllTimeData data = new AllTimeData();
+        if (cursor.moveToFirst()) {
+            // get the data into class variable
+            data.distance = cursor.getInt(cursor.getColumnIndex(ALL_TIME_DISTANCE));
+            data.time = cursor.getInt(cursor.getColumnIndex(ALL_TIME_TIME));
+            data.noOfWorkouts = cursor.getInt(cursor.getColumnIndex(ALL_TIME_NUM_OF_WORKOUTS));
+            data.calories = cursor.getInt(cursor.getColumnIndex(ALL_TIME_CALORIES));
+        }
+        cursor.close();
+        db.close();
+        return data;
+    }
+
+    /**
+     * Insert Info into 'info' table
+     * @param info
+     */
+    public void insertInfo(Info info) {
+        SQLiteDatabase db  = this.getReadableDatabase();
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        String startTimeStr = df.format(info.startTime);
+        db.execSQL("INSERT INTO " + TABLE_INFO + " VALUES ('" + startTimeStr + "')");
+        db.close();
+    }
+
+    /**
+     * Get data from 'info' table
+     * @return Info object
+     */
+    public Info getInfo() {
+        String selectQuery = "SELECT * FROM " + TABLE_INFO;
+        SQLiteDatabase db  = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(selectQuery, null);
+
+        Info data = new Info();
+        if (cursor.moveToFirst()) {
+            // get the data into class variable
+            String startTimeStr = cursor.getString(cursor.getColumnIndex(INFO_START_TIME));
+                try {
+                    data.startTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(startTimeStr);
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+        }
+        cursor.close();
+        db.close();
+        if (data.startTime == null) {
+            // set start time
+            data.startTime = new Date();
+            insertInfo(data);
+        }
+        return data;
+    }
+}
+
+class StepData {
+    String timestamp;
+    int count;
+    int calories;
+
+    @Override
+    public String toString() {
+        String retStr = "{ timestamp: " + timestamp
+                + ", count: " + count
+                + ", calories: " + calories + " }";
+        return retStr;
+    }
+}
+
+class AllTimeData {
+    float distance;
+    int time;
+    int noOfWorkouts;
+    int calories;
+
+    @Override
+    public String toString() {
+        String retStr = "{ noOfWorkouts: " + noOfWorkouts
+                + ", distance: " + distance
+                + ", time: " + time
+                + ", calories: " + calories + " }";
+        return retStr;
+    }
+}
+
+class Info {
+    Date startTime;
+}

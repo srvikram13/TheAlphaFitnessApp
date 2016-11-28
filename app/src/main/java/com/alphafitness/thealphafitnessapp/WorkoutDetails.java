@@ -15,6 +15,7 @@ import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
+import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -92,22 +93,34 @@ public class WorkoutDetails extends Fragment {
 
     private void drawChart() {
         LineChart chart = (LineChart) getView().findViewById(R.id.chart);
-        List<Entry> entries = new ArrayList<Entry>();
-        entries.add(new Entry(10, 35));
-        entries.add(new Entry(20, 65));
-        entries.add(new Entry(30, 40));
-        entries.add(new Entry(40, 66));
-        entries.add(new Entry(50, 70));
-        entries.add(new Entry(60, 72));
-        entries.add(new Entry(70, 85));
 
-        LineDataSet dataSet = new LineDataSet(entries, "Label"); // add entries to dataset
+        List<Entry> caloriesData = new ArrayList<Entry>();
+        List<Entry> stepCountData = new ArrayList<Entry>();
+
+        List<StepData> stepsData = dbHelper.getStepsData();
+        if(stepsData.size() <= 0) return;
+        Log.d(TAG, "Retrieving step data and converting to chart data: ");
+        for (StepData step : stepsData) {
+            Log.d(TAG, "Step data row: " + step.toString());
+            stepCountData.add(new Entry(Float.parseFloat(step.timestamp), step.count));
+            caloriesData.add(new Entry(Float.parseFloat(step.timestamp), step.calories));
+        }
+
+        List<ILineDataSet> dataSets = new ArrayList<ILineDataSet>();
+
+        LineDataSet dataSet = new LineDataSet(stepCountData, "Steps count"); // add entries to dataset
         dataSet.setColor(Color.BLUE);
         dataSet.setValueTextColor(1); // styling, ...
+        dataSets.add(dataSet);
 
+        LineDataSet dataSet2 = new LineDataSet(caloriesData, "Calories burnt"); // add entries to dataset
+        dataSet.setColor(Color.GREEN);
+        dataSet.setValueTextColor(1); // styling, ...
+        dataSets.add(dataSet2);
 
-        LineData lineData = new LineData(dataSet);
+        LineData lineData = new LineData(dataSets);
         chart.setData(lineData);
+
         chart.invalidate(); // refresh
     }
 

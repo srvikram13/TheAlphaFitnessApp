@@ -156,7 +156,7 @@ public class MyService extends Service implements SensorEventListener {
         allTimeData.calories += currWorkoutCalories;
 
         // set All Time Data in DB
-        dbHelper.insertAllTimeData(allTimeData);
+        dbHelper.updateAllTimeData(allTimeData);
         Log.d(TAG, "New allTimeData: " + allTimeData.toString());
     }
 

@@ -100,7 +100,6 @@ public class RecordWorkout extends Fragment implements OnMapReadyCallback {
             myService = IMyInterface.Stub.asInterface(service);
             Log.d(TAG, "Connected to MyService.");
         }
-
         // Called when the connection with the service disconnects unexpectedly
         public void onServiceDisconnected(ComponentName className) {
             Log.e(TAG, "Service has unexpectedly disconnected");
@@ -178,6 +177,7 @@ public class RecordWorkout extends Fragment implements OnMapReadyCallback {
                 if (btnWorkout.getText() == getString(R.string.start_workout)){
                     // start counting
                     try {
+                        setIsCounting(true);
                         myService.startCounting();
                         Log.d(TAG, "Calling startCounting().");
                     } catch (RemoteException e) {
@@ -188,6 +188,7 @@ public class RecordWorkout extends Fragment implements OnMapReadyCallback {
                 } else {
                     // stop counting
                     try {
+                        setIsCounting(false);
                         Log.d(TAG, "Calling stopCounting().");
                         myService.stopCounting();
                     } catch (RemoteException e) {
@@ -274,12 +275,10 @@ public class RecordWorkout extends Fragment implements OnMapReadyCallback {
         /*
         LocationManager locationManager;
         locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
-
         Criteria criteria = new Criteria();
         criteria.setAccuracy(Criteria.ACCURACY_FINE);
         criteria.setPowerRequirement(Criteria.POWER_LOW);
         String locationProvider = locationManager.getBestProvider(criteria, true);
-
         Location location = locationManager.getLastKnownLocation(locationProvider);
         if(location != null) {
             Log.d(TAG, " location: "+location.toString());
@@ -288,7 +287,6 @@ public class RecordWorkout extends Fragment implements OnMapReadyCallback {
             googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(location.getLatitude(), location.getLongitude()), 15));
         }
         googleMap.addPolyline((new PolylineOptions()).add(TIMES_SQUARE, BROOKLYN_BRIDGE, LOWER_MANHATTAN, TIMES_SQUARE).width(5).color(Color.BLUE).geodesic(true));
-
         // move camera to zoom on map
         googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(LOWER_MANHATTAN, 13));*/
     }
@@ -322,6 +320,7 @@ public class RecordWorkout extends Fragment implements OnMapReadyCallback {
 
     @Override
     public void onResume() {
+        Log.d(TAG, "Inside onResume(), isCounting(): " + isCounting());
         super.onResume();
         final Button btnWorkout = (Button) getView().findViewById(R.id.btn_record_workout);
         if (isCounting()) {
@@ -371,5 +370,12 @@ public class RecordWorkout extends Fragment implements OnMapReadyCallback {
     private boolean isCounting() {
         SharedPreferences preferences = getContext().getSharedPreferences("AlphaFitness", Context.MODE_PRIVATE);
         return preferences.getBoolean("IS_COUNTING", false);
+    }
+
+    private void setIsCounting(boolean isCounting) {
+        SharedPreferences preferences = getContext().getSharedPreferences("AlphaFitness", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putBoolean("IS_COUNTING", isCounting);
+        editor.commit();
     }
 }

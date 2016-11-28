@@ -4,8 +4,12 @@ import static android.provider.BaseColumns._ID;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.location.Location;
 import android.util.Log;
+
+import com.google.android.gms.maps.model.LatLng;
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -13,12 +17,13 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 public class DBHelper extends SQLiteOpenHelper {
     private static final String TAG = "DEBUG: DBHelper";
 
     private static final String DATABASE_NAME = "alphafitness.db";
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 2;
 
     public static final String TABLE_ALL_TIME = "alltime";
     // Columns in the 'alltime' table
@@ -36,6 +41,12 @@ public class DBHelper extends SQLiteOpenHelper {
     public static final String TABLE_INFO = "info";
     // Columns in the 'info' table
     public static final String INFO_START_TIME = "starttime";   // start time of the first workout
+
+    public static final String TABLE_WORKOUT_PATH = "workoutpath";
+    // Columns in the 'workoutpath' table
+    public static final String WORKOUT_PATH_LATITUDE = "latitude";
+    public static final String WORKOUT_PATH_LONGITUDE = "longitude";
+
 
     private static DBHelper mInstance = null;
     public static DBHelper getInstance(Context ctx) {
@@ -68,6 +79,10 @@ public class DBHelper extends SQLiteOpenHelper {
 
         db.execSQL("CREATE TABLE " + TABLE_INFO + " ("
                 + INFO_START_TIME + " TEXT NOT NULL);");
+
+        db.execSQL("CREATE TABLE " + TABLE_WORKOUT_PATH + " ("
+                + WORKOUT_PATH_LATITUDE + " INTEGER NOT NULL, "
+                + WORKOUT_PATH_LONGITUDE + " INTEGER NOT NULL);");
     }
 
     @Override
@@ -78,11 +93,49 @@ public class DBHelper extends SQLiteOpenHelper {
     }
 
     private void deleteAllTablesAndReCreate(SQLiteDatabase db) {
-        db.execSQL("DROP TABLE " + TABLE_ALL_TIME + ";");
-        db.execSQL("DROP TABLE " + TABLE_STEPS + ";");
-        db.execSQL("DROP TABLE " + TABLE_INFO + ";");
-        onCreate(db);
+        try {
+            db.execSQL("DROP TABLE " + TABLE_ALL_TIME + ";");
+            db.execSQL("DROP TABLE " + TABLE_STEPS + ";");
+            db.execSQL("DROP TABLE " + TABLE_INFO + ";");
+            db.execSQL("DROP TABLE " + TABLE_WORKOUT_PATH + ";");
+        }catch (SQLiteException e) {
+
+        } finally {
+            onCreate(db);
+        }
     }
+    /**
+     * update workout path in 'workout path' table
+     * @param latitude, longitude
+     */
+    public void updateWorkoutPath(double latitude, double longitude) {
+        SQLiteDatabase db  = this.getReadableDatabase();
+        db.execSQL("INSERT INTO " + TABLE_WORKOUT_PATH+ " VALUES ('" + latitude + "', " + longitude + ")");
+        db.close();
+    }
+    /**
+     * Get all location coordinates as (latitude,longitude) from 'workout path' table.
+     * @return list of lat, long objects
+     */
+
+    public List<LatLng> getWorkoutPath() {
+        String selectQuery = "SELECT " + WORKOUT_PATH_LATITUDE + ", "+ WORKOUT_PATH_LONGITUDE + " FROM " + TABLE_WORKOUT_PATH;
+        SQLiteDatabase db  = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(selectQuery, null);
+
+        List<LatLng> data = new ArrayList<>();
+        if (cursor.moveToFirst()) {
+            do {
+                // get the data into array, or class variable
+                LatLng location = new LatLng(cursor.getInt(cursor.getColumnIndex(WORKOUT_PATH_LATITUDE)), cursor.getInt(cursor.getColumnIndex(WORKOUT_PATH_LONGITUDE)));
+                data.add(location);
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+        db.close();
+        return data;
+    }
+
 
     /**
      * Insert StepData into 'steps' table
@@ -100,7 +153,7 @@ public class DBHelper extends SQLiteOpenHelper {
      * @return list of StepData objects
      */
     public List<StepData> getStepsData() {
-        String selectQuery = "SELECT " + STEPS_TIMESTAMP + ", " + STEPS_COUNT + " FROM " + TABLE_STEPS;
+        String selectQuery = "SELECT " + STEPS_TIMESTAMP + ", " + STEPS_COUNT + ", " + STEPS_CALORIES + " FROM " + TABLE_STEPS;
         SQLiteDatabase db  = this.getReadableDatabase();
         Cursor cursor = db.rawQuery(selectQuery, null);
 

@@ -9,6 +9,7 @@ import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Criteria;
 import android.location.Location;
+import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
@@ -30,7 +31,10 @@ import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
+
+import java.util.List;
 
 import static android.content.Context.BIND_AUTO_CREATE;
 
@@ -61,12 +65,13 @@ public class RecordWorkout extends Fragment implements OnMapReadyCallback {
 
     private OnFragmentInteractionListener mListener;
 
+
+    private DBHelper dbHelper;
     IMyInterface myService;
     RemoteConnection remoteConnection = null;
 
 
-    private static final LatLng LOWER_MANHATTAN = new LatLng(40.722543,
-            -73.998585);
+    private static final LatLng LOWER_MANHATTAN = new LatLng(40.722543, -73.998585);
     private static final LatLng TIMES_SQUARE = new LatLng(40.7577, -73.9857);
     private static final LatLng BROOKLYN_BRIDGE = new LatLng(40.7057, -73.9964);
 
@@ -140,6 +145,7 @@ public class RecordWorkout extends Fragment implements OnMapReadyCallback {
         if (!getContext().bindService(intent, remoteConnection, BIND_AUTO_CREATE)) {
             Toast.makeText(getContext(), "Failed to bind the remote service, MyService.", Toast.LENGTH_SHORT).show();
         }
+        dbHelper = DBHelper.getInstance(getActivity().getApplicationContext());
     }
 
     @Override
@@ -150,10 +156,14 @@ public class RecordWorkout extends Fragment implements OnMapReadyCallback {
 
         final Button btnWorkout = (Button) view.findViewById(R.id.btn_record_workout);
 
+        if(isCounting()) {
+            btnWorkout.setText(R.string.stop_workout);
+        } else {
+            btnWorkout.setText(R.string.start_workout);
+        }
         btnWorkout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.d(TAG, "Inside onClick(), btnWorkout.getText(): " + btnWorkout.getText());
                 //Log.d(TAG, "getString(R.string.start_workout): " + getString(R.string.start_workout));
                 //boolean test = btnWorkout.getText() == getString(R.string.start_workout);
                 //Log.d(TAG, "test: " + test);
@@ -168,8 +178,8 @@ public class RecordWorkout extends Fragment implements OnMapReadyCallback {
                 if (btnWorkout.getText() == getString(R.string.start_workout)){
                     // start counting
                     try {
-                        Log.d(TAG, "Calling startCounting().");
                         myService.startCounting();
+                        Log.d(TAG, "Calling startCounting().");
                     } catch (RemoteException e) {
                         Log.e(TAG, "Error occured in MyService while trying to start counting.");
                         e.printStackTrace();
@@ -181,7 +191,7 @@ public class RecordWorkout extends Fragment implements OnMapReadyCallback {
                         Log.d(TAG, "Calling stopCounting().");
                         myService.stopCounting();
                     } catch (RemoteException e) {
-                        Log.e(TAG, "Error occured in MyService while trying to stop counting.");
+                        Log.e(TAG, "Error occurred in MyService while trying to stop counting.");
                         e.printStackTrace();
                     }
                     btnWorkout.setText(R.string.start_workout);
@@ -229,13 +239,7 @@ public class RecordWorkout extends Fragment implements OnMapReadyCallback {
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
-        LocationManager locationManager;
-        locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
 
-        Criteria criteria = new Criteria();
-        criteria.setAccuracy(Criteria.ACCURACY_FINE);
-        criteria.setPowerRequirement(Criteria.POWER_LOW);
-        String locationProvider = locationManager.getBestProvider(criteria, true);
         if(ActivityCompat.checkSelfPermission(getActivity(), android.Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED
                 && ActivityCompat.checkSelfPermission(getActivity(), android.Manifest.permission.ACCESS_COARSE_LOCATION)
@@ -243,6 +247,39 @@ public class RecordWorkout extends Fragment implements OnMapReadyCallback {
             Toast.makeText(getContext(), "Permission to access device GPS denied.", Toast.LENGTH_LONG).show();
             return;
         }
+
+        dbHelper.updateWorkoutPath(40.722543, -73.998585);
+        dbHelper.updateWorkoutPath(40.7577, -73.9857);
+        dbHelper.updateWorkoutPath(40.7057, -73.9964);
+
+        List<LatLng> path = dbHelper.getWorkoutPath();
+
+        if(path.size() >= 1) {
+            for (int i = 0; i < path.size() - 1; i++) {
+                LatLng src = path.get(i);
+                LatLng dest = path.get(i + 1);
+
+                // mMap is the Map Object
+                Polyline line = googleMap.addPolyline(
+                        new PolylineOptions().add(
+                                new LatLng(src.latitude, src.longitude),
+                                new LatLng(dest.latitude,dest.longitude)
+                        ).width(2).color(Color.BLUE).geodesic(true)
+                );
+            }
+            // move camera to zoom on map
+            googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(path.get(0), 13));
+        }
+
+        /*
+        LocationManager locationManager;
+        locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
+
+        Criteria criteria = new Criteria();
+        criteria.setAccuracy(Criteria.ACCURACY_FINE);
+        criteria.setPowerRequirement(Criteria.POWER_LOW);
+        String locationProvider = locationManager.getBestProvider(criteria, true);
+
         Location location = locationManager.getLastKnownLocation(locationProvider);
         if(location != null) {
             Log.d(TAG, " location: "+location.toString());
@@ -250,14 +287,10 @@ public class RecordWorkout extends Fragment implements OnMapReadyCallback {
             // Move the camera instantly to hamburg with a zoom of 15.
             googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(location.getLatitude(), location.getLongitude()), 15));
         }
-        googleMap
-                .addPolyline((new PolylineOptions())
-                        .add(TIMES_SQUARE, BROOKLYN_BRIDGE, LOWER_MANHATTAN,
-                                TIMES_SQUARE).width(5).color(Color.BLUE)
-                        .geodesic(true));
+        googleMap.addPolyline((new PolylineOptions()).add(TIMES_SQUARE, BROOKLYN_BRIDGE, LOWER_MANHATTAN, TIMES_SQUARE).width(5).color(Color.BLUE).geodesic(true));
+
         // move camera to zoom on map
-        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(LOWER_MANHATTAN,
-                13));
+        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(LOWER_MANHATTAN, 13));*/
     }
 
     /**

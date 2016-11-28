@@ -4,12 +4,18 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
+import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
+import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -24,7 +30,8 @@ public class MyService extends Service implements SensorEventListener {
     IMyInterface.Stub mBinder;
 
     private SensorManager sensorManager;
-
+    private LocationManager locationManager;
+    LocationListener locationListener;
     DBHelper dbHelper;
 
     /*
@@ -34,6 +41,7 @@ public class MyService extends Service implements SensorEventListener {
 
     public MyService() {
     }
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -44,15 +52,8 @@ public class MyService extends Service implements SensorEventListener {
 
         final MyService mySvc = this;
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
-
+        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         mBinder = new IMyInterface.Stub() {
-            public int square (int value) throws RemoteException {
-                return value * value;
-            }
-            public void basicTypes(int anInt, long aLong, boolean aBoolean, float aFloat,
-                                        double aDouble, String aString) {
-            }
-
             public void startCounting() {
                 Log.d(TAG, "startCounting()");
                 // don't start counting if already counting
@@ -68,6 +69,14 @@ public class MyService extends Service implements SensorEventListener {
                         //Toast.makeText(mySvc, "Count sensor not available!", Toast.LENGTH_LONG).show();
                         Log.e(TAG, "Count sensor not available!");
                     }
+                    // Register the listener with the Location Manager to receive location updates
+                    if (ActivityCompat.checkSelfPermission(getApplicationContext(), android.Manifest.permission.ACCESS_FINE_LOCATION)
+                            != PackageManager.PERMISSION_GRANTED
+                            && ActivityCompat.checkSelfPermission(getApplicationContext(), android.Manifest.permission.ACCESS_COARSE_LOCATION)
+                            != PackageManager.PERMISSION_GRANTED) {
+                        return;
+                    }
+                    locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, locationListener);
                 }
             }
 
@@ -76,12 +85,39 @@ public class MyService extends Service implements SensorEventListener {
 
                 //if you unregister the last listener, the hardware will stop detecting step events
                 sensorManager.unregisterListener(mySvc);
+
                 // flush the count so far
                 sensorManager.flush(MyService.this);
                 setIsCounting(false);
                 // add current workout data to all time date in DB
                 storeWorkoutData();
+
+                // Remove the listener you previously added
+                if (ActivityCompat.checkSelfPermission(getApplicationContext(), android.Manifest.permission.ACCESS_FINE_LOCATION)
+                        != PackageManager.PERMISSION_GRANTED
+                        && ActivityCompat.checkSelfPermission(getApplicationContext(), android.Manifest.permission.ACCESS_COARSE_LOCATION)
+                        != PackageManager.PERMISSION_GRANTED) {
+                    Toast.makeText(getApplicationContext(), "Permission to access device GPS denied.", Toast.LENGTH_LONG).show();
+                    return;
+                }
+                locationManager.removeUpdates(locationListener);
+                // TODO: store location data with current workout
             }
+        };
+        // Define a listener that responds to location updates
+        locationListener = new LocationListener() {
+            public void onLocationChanged(Location location) {
+                // Called when a new location is found by the network location provider.
+                Location loc = location;
+                dbHelper.updateWorkoutPath(loc.getLatitude(), loc.getLongitude());
+                //makeUseOfNewLocation(location);
+            }
+
+            public void onStatusChanged(String provider, int status, Bundle extras) {}
+
+            public void onProviderEnabled(String provider) {}
+
+            public void onProviderDisabled(String provider) {}
         };
     }
 

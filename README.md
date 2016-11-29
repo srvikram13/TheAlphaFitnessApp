@@ -10,7 +10,7 @@ model
 	 WorkoutInfo.java
 		- will contain getter methods for data
 controller
-	MyService.java
+	SensorService.java
 	StepCounterService.java
 		- will contain calorie calculation & storing logic
 views

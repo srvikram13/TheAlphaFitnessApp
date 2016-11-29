@@ -16,9 +16,9 @@ import android.widget.Toast;
 import java.util.Calendar;
 
 
-public class MyService extends Service implements SensorEventListener {
+public class SensorService extends Service implements SensorEventListener {
 
-    private static final String TAG = "DEBUG: MyService";
+    private static final String TAG = "DEBUG: SensorService";
 
     IMyInterface.Stub mBinder;
 
@@ -30,23 +30,23 @@ public class MyService extends Service implements SensorEventListener {
 
      */
 
-    public MyService() {
+    public SensorService() {
     }
 
     @Override
     public void onCreate() {
         super.onCreate();
         //Log.d(TAG, "Inside onCreate()");
-        //Toast.makeText(this, "Inside onCreate() of MyService", Toast.LENGTH_SHORT).show();
+        //Toast.makeText(this, "Inside onCreate() of SensorService", Toast.LENGTH_SHORT).show();
 
         dbHelper = DBHelper.getInstance(getApplicationContext());
 
-        final MyService mySvc = this;
+        final SensorService mySvc = this;
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         mBinder = new IMyInterface.Stub() {
             public void startCounting() {
                 PackageManager pm = getPackageManager();
-                if (pm.hasSystemFeature(PackageManager.FEATURE_SENSOR_STEP_COUNTER)) {
+                if (!pm.hasSystemFeature(PackageManager.FEATURE_SENSOR_STEP_COUNTER)) {
                     Toast.makeText(getApplicationContext(), "Count sensor not available!", Toast.LENGTH_LONG).show();
                 }
                 Log.d(TAG, "startCounting()");
@@ -76,7 +76,7 @@ public class MyService extends Service implements SensorEventListener {
                 sensorManager.unregisterListener(mySvc);
 
                 // flush the count so far
-                sensorManager.flush(MyService.this);
+                sensorManager.flush(SensorService.this);
                 setIsCounting(false);
                 // add current workout data to all time date in DB
                 storeWorkoutData();
@@ -149,13 +149,13 @@ public class MyService extends Service implements SensorEventListener {
     public void onDestroy() {
         super.onDestroy();
         Log.d(TAG, "Inside onDestroy()");
-        Toast.makeText(this, "Inside onDestroy() of MyService", Toast.LENGTH_SHORT).show();
+        //Toast.makeText(this, "Inside onDestroy() of SensorService", Toast.LENGTH_SHORT).show();
     }
 
     @Override
     public IBinder onBind(Intent intent) {
         Log.d(TAG, "Inside onBind()");
-        Toast.makeText(this, "Inside onBind() of MyService", Toast.LENGTH_SHORT).show();
+        //Toast.makeText(this, "Inside onBind() of SensorService", Toast.LENGTH_SHORT).show();
         return mBinder;
     }
 

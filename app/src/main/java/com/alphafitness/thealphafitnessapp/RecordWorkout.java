@@ -28,7 +28,6 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 
 import java.util.Calendar;
@@ -62,9 +61,6 @@ public class RecordWorkout extends Fragment implements OnMapReadyCallback {
     CountDownTimer currWorkoutTimer;
     Intent locationServiceIntent;
 
-    private static final LatLng LOWER_MANHATTAN = new LatLng(40.722543, -73.998585);
-    private static final LatLng TIMES_SQUARE = new LatLng(40.7577, -73.9857);
-    private static final LatLng BROOKLYN_BRIDGE = new LatLng(40.7057, -73.9964);
 
     class RemoteConnection implements ServiceConnection {
         // Called when the connection with the service is established
@@ -72,7 +68,7 @@ public class RecordWorkout extends Fragment implements OnMapReadyCallback {
             // Following the example above for an AIDL interface,
             // this gets an instance of the IRemoteInterface, which we can use to call on the service
             myService = IMyInterface.Stub.asInterface(service);
-            Log.d(TAG, "Connected to MyService.");
+            Log.d(TAG, "Connected to SensorService.");
         }
 
         // Called when the connection with the service disconnects unexpectedly
@@ -109,9 +105,9 @@ public class RecordWorkout extends Fragment implements OnMapReadyCallback {
         // initialize the service
         remoteConnection = new RemoteConnection();
         Intent intent = new Intent();
-        intent.setClassName("com.alphafitness.thealphafitnessapp", com.alphafitness.thealphafitnessapp.MyService.class.getName());
+        intent.setClassName("com.alphafitness.thealphafitnessapp", SensorService.class.getName());
         if (!getContext().bindService(intent, remoteConnection, BIND_AUTO_CREATE)) {
-            Toast.makeText(getContext(), "Failed to bind the remote service, MyService.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), "Failed to bind the remote service, SensorService.", Toast.LENGTH_SHORT).show();
         }
 
         locationServiceIntent = new Intent(getActivity(), LocationService.class);
@@ -141,8 +137,8 @@ public class RecordWorkout extends Fragment implements OnMapReadyCallback {
                 //btnWorkout.setText(R.string.stop_workout);
 
                 if (myService == null) {
-                    Log.d(TAG, "Not connected to MyService yet.");
-                    Toast.makeText(getContext(), "Not connected to MyService yet.", Toast.LENGTH_SHORT).show();
+                    Log.d(TAG, "Not connected to SensorService yet.");
+                    Toast.makeText(getContext(), "Not connected to SensorService yet.", Toast.LENGTH_SHORT).show();
                     return;
                 }
 
@@ -157,7 +153,7 @@ public class RecordWorkout extends Fragment implements OnMapReadyCallback {
                         getActivity().startService(locationServiceIntent);
 
                     } catch (RemoteException e) {
-                        Log.e(TAG, "Error occurred in MyService while trying to start counting.");
+                        Log.e(TAG, "Error occurred in SensorService while trying to start counting.");
                         e.printStackTrace();
                     }
                     btnWorkout.setText(R.string.stop_workout);
@@ -171,7 +167,7 @@ public class RecordWorkout extends Fragment implements OnMapReadyCallback {
                         getActivity().stopService(locationServiceIntent);
                         updatePathOnMap();
                     } catch (RemoteException e) {
-                        Log.e(TAG, "Error occurred in MyService while trying to stop counting.");
+                        Log.e(TAG, "Error occurred in SensorService while trying to stop counting.");
                         e.printStackTrace();
                     }
                     btnWorkout.setText(R.string.start_workout);
@@ -200,7 +196,7 @@ public class RecordWorkout extends Fragment implements OnMapReadyCallback {
                             + ", currTime: " + currTime
                             + ", currStartTimeFromSvc: " + currStartTimeFromSvc);
                 } catch (RemoteException e) {
-                    Log.e(TAG, "Error occurred in MyService while trying to get current workout distance and duration.");
+                    Log.e(TAG, "Error occurred in SensorService while trying to get current workout distance and duration.");
                 }
 
 

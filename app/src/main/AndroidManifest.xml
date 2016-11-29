@@ -42,12 +42,12 @@
             android:theme="@style/AppTheme.NoActionBar" />
 
         <service
-            android:name=".MyService"
+            android:name=".SensorService"
             android:enabled="true"
             android:exported="true"
             android:process=":anotherProc">
             <intent-filter>
-                <action android:name="com.alphafitness.thealphafitnessapp.MyService"></action>
+                <action android:name="com.alphafitness.thealphafitnessapp.SensorService"></action>
             </intent-filter>
         </service>
 

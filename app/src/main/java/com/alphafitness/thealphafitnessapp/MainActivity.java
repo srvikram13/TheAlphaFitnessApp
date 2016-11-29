@@ -25,7 +25,7 @@ public class MainActivity extends FragmentActivity implements WorkoutDetails.OnF
         updateDisplayFragment();
 
         // start service
-        startService(new Intent(MainActivity.this, MyService.class));
+        startService(new Intent(MainActivity.this, SensorService.class));
     }
     @Override
     public void onConfigurationChanged(Configuration newConfig) {

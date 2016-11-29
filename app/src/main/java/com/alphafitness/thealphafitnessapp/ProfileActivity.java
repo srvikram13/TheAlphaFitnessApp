@@ -122,13 +122,13 @@ public class ProfileActivity extends AppCompatActivity implements OnItemSelected
                     Log.d(TAG, "DEBUG: Updated info: " + info.toString());
                     btnSubmit.setVisibility(View.GONE);
                 }
-                Toast.makeText(ProfileActivity.this,
+                /*Toast.makeText(ProfileActivity.this,
                         "OnClickListener : " +
                                 "\nGender : "+ genderStr +
                                 "\nUsername : "+ usernameStr +
                                 "\nWeight : "+ wtStr,
                         Toast.LENGTH_SHORT).show();
-
+*/
                 Log.d(TAG, "DEBUG: OnClickListener : " +
                         "\nGender : "+ genderStr +
                         "\nUsername : "+ usernameStr +

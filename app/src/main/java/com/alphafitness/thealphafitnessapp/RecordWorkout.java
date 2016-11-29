@@ -7,12 +7,9 @@ import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
-import android.location.Criteria;
-import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.support.v4.app.ActivityCompat;
@@ -23,6 +20,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -30,10 +28,10 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 
+import java.util.Calendar;
 import java.util.List;
 
 import static android.content.Context.BIND_AUTO_CREATE;
@@ -51,25 +49,18 @@ public class RecordWorkout extends Fragment implements OnMapReadyCallback {
 
     private static final String TAG = "DEBUG: RecordWorkout";
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
     private static final String MAPVIEW_BUNDLE_KEY = "MapViewBundleKey";
 
     private View mView;
     private MapView mMapView;
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
 
-    private OnFragmentInteractionListener mListener;
 
 
     private DBHelper dbHelper;
     IMyInterface myService;
     RemoteConnection remoteConnection = null;
-
+    CountDownTimer currWorkoutTimer;
+    Intent locationServiceIntent;
 
     private static final LatLng LOWER_MANHATTAN = new LatLng(40.722543, -73.998585);
     private static final LatLng TIMES_SQUARE = new LatLng(40.7577, -73.9857);
@@ -91,22 +82,8 @@ public class RecordWorkout extends Fragment implements OnMapReadyCallback {
         }
     }
 
-    /*
-    private ServiceConnection mConnection = new ServiceConnection() {
-        // Called when the connection with the service is established
-        public void onServiceConnected(ComponentName className, IBinder service) {
-            // Following the example above for an AIDL interface,
-            // this gets an instance of the IRemoteInterface, which we can use to call on the service
-            myService = IMyInterface.Stub.asInterface(service);
-            Log.d(TAG, "Connected to MyService.");
-        }
-        // Called when the connection with the service disconnects unexpectedly
-        public void onServiceDisconnected(ComponentName className) {
-            Log.e(TAG, "Service has unexpectedly disconnected");
-            myService = null;
-        }
-    };
-*/
+
+
     public RecordWorkout() {
         // Required empty public constructor
     }
@@ -115,16 +92,12 @@ public class RecordWorkout extends Fragment implements OnMapReadyCallback {
      * Use this factory method to create a new instance of
      * this fragment using the provided parameters.
      *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
      * @return A new instance of fragment RecordWorkout.
      */
     // TODO: Rename and change types and number of parameters
-    public static RecordWorkout newInstance(String param1, String param2) {
+    public static RecordWorkout newInstance() {
         RecordWorkout fragment = new RecordWorkout();
         Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
         fragment.setArguments(args);
         return fragment;
     }
@@ -132,10 +105,6 @@ public class RecordWorkout extends Fragment implements OnMapReadyCallback {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
 
         // initialize the service
         remoteConnection = new RemoteConnection();
@@ -144,6 +113,9 @@ public class RecordWorkout extends Fragment implements OnMapReadyCallback {
         if (!getContext().bindService(intent, remoteConnection, BIND_AUTO_CREATE)) {
             Toast.makeText(getContext(), "Failed to bind the remote service, MyService.", Toast.LENGTH_SHORT).show();
         }
+
+        locationServiceIntent = new Intent(getActivity(), LocationService.class);
+
         dbHelper = DBHelper.getInstance(getActivity().getApplicationContext());
     }
 
@@ -178,8 +150,12 @@ public class RecordWorkout extends Fragment implements OnMapReadyCallback {
                     // start counting
                     try {
                         setIsCounting(true);
-                        myService.startCounting();
+                        currWorkoutTimer.start();
                         Log.d(TAG, "Calling startCounting().");
+                        myService.startCounting();
+                        dbHelper.clearWorkoutPath();
+                        getActivity().startService(locationServiceIntent);
+
                     } catch (RemoteException e) {
                         Log.e(TAG, "Error occured in MyService while trying to start counting.");
                         e.printStackTrace();
@@ -189,8 +165,10 @@ public class RecordWorkout extends Fragment implements OnMapReadyCallback {
                     // stop counting
                     try {
                         setIsCounting(false);
+                        currWorkoutTimer.cancel();
                         Log.d(TAG, "Calling stopCounting().");
                         myService.stopCounting();
+                        getActivity().stopService(locationServiceIntent);
                     } catch (RemoteException e) {
                         Log.e(TAG, "Error occurred in MyService while trying to stop counting.");
                         e.printStackTrace();
@@ -200,6 +178,38 @@ public class RecordWorkout extends Fragment implements OnMapReadyCallback {
 
             }
         });
+        final TextView curDistance = (TextView)view.findViewById(R.id.workout_distance);
+        final TextView curDuration = (TextView)view.findViewById(R.id.workout_duration);
+        // timer to update current workout distance and duration
+        currWorkoutTimer = new CountDownTimer(1000000000, 1000) {
+
+            public void onTick(long millisUntilFinished) {
+                // update text views for current workout distance and duration
+                Log.d(TAG, "Inside currWorkoutTimer");
+                int currStepCountFromSvc = 0;
+                long currStartTimeFromSvc = 0;
+
+                try {
+                    currStepCountFromSvc = myService.getCurrentWorkoutStepCount();
+                    currStartTimeFromSvc = myService.getCurrentWorkoutStartTime();
+                    Log.d(TAG, "currStepCountFromSvc: " + currStepCountFromSvc
+                            + ", currStartTimeFromSvc: " + currStartTimeFromSvc);
+                } catch (RemoteException e) {
+                    Log.e(TAG, "Error occured in MyService while trying to get current workout distance and duration.");
+                }
+
+                long currTime = Calendar.getInstance().getTimeInMillis();
+
+                long currDurationInSecs = (currTime - currStartTimeFromSvc)/1000;
+                float curWorkoutDistance = (float) (currStepCountFromSvc * 0.00044);
+
+                curDistance.setText(String.valueOf(curWorkoutDistance));
+                curDuration.setText(String.valueOf(currDurationInSecs));
+            }
+            public void onFinish() {
+
+            }
+        };
         final ImageButton btnProfile = (ImageButton) view.findViewById(R.id.profileButton);
         btnProfile.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -224,18 +234,11 @@ public class RecordWorkout extends Fragment implements OnMapReadyCallback {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof OnFragmentInteractionListener) {
-            mListener = (OnFragmentInteractionListener) context;
-        } else {
-            throw new RuntimeException(context.toString()
-                    + " must implement OnFragmentInteractionListener");
-        }
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
-        mListener = null;
     }
 
     @Override
@@ -249,9 +252,10 @@ public class RecordWorkout extends Fragment implements OnMapReadyCallback {
             return;
         }
 
-        dbHelper.updateWorkoutPath(40.722543, -73.998585);
-        dbHelper.updateWorkoutPath(40.7577, -73.9857);
-        dbHelper.updateWorkoutPath(40.7057, -73.9964);
+        //dbHelper.updateWorkoutPath(40.722543, -73.998585);
+        //dbHelper.updateWorkoutPath(40.7577, -73.9857);
+        //dbHelper.updateWorkoutPath(40.7057, -73.9964);
+        //
 
         List<LatLng> path = dbHelper.getWorkoutPath();
 
@@ -324,6 +328,7 @@ public class RecordWorkout extends Fragment implements OnMapReadyCallback {
         super.onResume();
         final Button btnWorkout = (Button) getView().findViewById(R.id.btn_record_workout);
         if (isCounting()) {
+            currWorkoutTimer.start();
             btnWorkout.setText(R.string.stop_workout);
         } else {
             btnWorkout.setText(R.string.start_workout);
@@ -348,6 +353,7 @@ public class RecordWorkout extends Fragment implements OnMapReadyCallback {
     public void onPause() {
         mMapView.onPause();
         super.onPause();
+        currWorkoutTimer.cancel();
     }
 
     @Override

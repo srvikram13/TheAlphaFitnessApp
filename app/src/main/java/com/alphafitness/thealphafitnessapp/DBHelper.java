@@ -21,7 +21,7 @@ public class DBHelper extends SQLiteOpenHelper {
     private static final String TAG = "DEBUG: DBHelper";
 
     private static final String DATABASE_NAME = "alphafitness.db";
-    private static final int DATABASE_VERSION = 5;
+    private static final int DATABASE_VERSION = 6;
 
     public static final String TABLE_ALL_TIME = "alltime";
     // Columns in the 'alltime' table
@@ -41,6 +41,7 @@ public class DBHelper extends SQLiteOpenHelper {
     // Columns in the 'info' table
     public static final String INFO_KEY = "key";
     public static final String INFO_START_TIME = "starttime";   // start time of the first workout
+    public static final String INFO_USERNAME = "username";
     public static final String INFO_GENDER = "gender";
     public static final String INFO_WEIGHT = "weight";
 
@@ -82,6 +83,7 @@ public class DBHelper extends SQLiteOpenHelper {
         db.execSQL("CREATE TABLE " + TABLE_INFO + " ("
                 + INFO_KEY + " TEXT NOT NULL, "
                 + INFO_START_TIME + " TEXT NOT NULL, "
+                + INFO_USERNAME + " TEXT, "
                 + INFO_GENDER + " TEXT NOT NULL, "
                 + INFO_WEIGHT + " REAL NOT NULL);");
 
@@ -118,6 +120,16 @@ public class DBHelper extends SQLiteOpenHelper {
         db.execSQL("INSERT INTO " + TABLE_WORKOUT_PATH+ " VALUES ('" + latitude + "', " + longitude + ")");
         db.close();
     }
+    public void clearWorkoutPath() {
+        SQLiteDatabase db  = this.getReadableDatabase();
+        db.execSQL("DROP TABLE " + TABLE_WORKOUT_PATH + ";");
+
+        db.execSQL("CREATE TABLE " + TABLE_WORKOUT_PATH + " ("
+                + WORKOUT_PATH_LATITUDE + " INTEGER NOT NULL, "
+                + WORKOUT_PATH_LONGITUDE + " INTEGER NOT NULL);");
+
+        db.close();
+    }
     /**
      * Get all location coordinates as (latitude,longitude) from 'workout path' table.
      * @return list of lat, long objects
@@ -132,7 +144,7 @@ public class DBHelper extends SQLiteOpenHelper {
         if (cursor.moveToFirst()) {
             do {
                 // get the data into array, or class variable
-                LatLng location = new LatLng(cursor.getDouble(cursor.getColumnIndex(WORKOUT_PATH_LATITUDE)), cursor.getDouble(cursor.getColumnIndex(WORKOUT_PATH_LONGITUDE)));
+                LatLng location = new LatLng(cursor.getInt(cursor.getColumnIndex(WORKOUT_PATH_LATITUDE)), cursor.getInt(cursor.getColumnIndex(WORKOUT_PATH_LONGITUDE)));
                 data.add(location);
             } while (cursor.moveToNext());
         }
@@ -230,7 +242,7 @@ public class DBHelper extends SQLiteOpenHelper {
         SQLiteDatabase db  = this.getReadableDatabase();
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         String startTimeStr = df.format(info.startTime);
-        db.execSQL("INSERT INTO " + TABLE_INFO + " VALUES ('INFO', '" + startTimeStr + "', ' " + info.gender + "', " + info.weight + ")");
+        db.execSQL("INSERT INTO " + TABLE_INFO + " VALUES ('INFO', '" + startTimeStr + "', '" + info.username + "', '" + info.gender + "', " + info.weight + ")");
         db.close();
     }
 
@@ -242,7 +254,7 @@ public class DBHelper extends SQLiteOpenHelper {
         SQLiteDatabase db  = this.getReadableDatabase();
         //DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         //String startTimeStr = df.format(info.startTime);
-        db.execSQL("UPDATE " + TABLE_INFO + " SET " + INFO_GENDER + " = '" + info.gender + "', " + INFO_WEIGHT + " = " + info.weight
+        db.execSQL("UPDATE " + TABLE_INFO + " SET " + INFO_GENDER + " = '" + info.gender + "', " + INFO_USERNAME + " = '" + info.username + "', " + INFO_WEIGHT + " = " + info.weight
                 + " WHERE " + INFO_KEY + " = 'INFO'");
         db.close();
     }
@@ -266,8 +278,10 @@ public class DBHelper extends SQLiteOpenHelper {
                 e.printStackTrace();
             }
             String genderStr = cursor.getString(cursor.getColumnIndex(INFO_GENDER));
+            String usernameStr = cursor.getString(cursor.getColumnIndex(INFO_USERNAME));
             float weight = cursor.getFloat(cursor.getColumnIndex(INFO_WEIGHT));
             data.gender = genderStr;
+            data.username = usernameStr;
             data.weight = weight;
         }
         cursor.close();
@@ -276,6 +290,7 @@ public class DBHelper extends SQLiteOpenHelper {
             // set start time
             data.startTime = new Date();
             data.gender = "Male";
+            data.username = "";
             data.weight = 0;
             insertInfo(data);
         }
@@ -315,12 +330,14 @@ class AllTimeData {
 
 class Info {
     Date startTime;
+    String username;
     String gender;
     float weight;
 
     @Override
     public String toString() {
         String retStr = "{ startTime: " + startTime
+                + ", username: " + username
                 + ", gender: " + gender
                 + ", weight: " + weight + " }";
         return retStr;

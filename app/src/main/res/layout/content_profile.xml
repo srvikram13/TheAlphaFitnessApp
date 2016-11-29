@@ -36,12 +36,29 @@
                 app:srcCompat="@android:drawable/sym_def_app_icon"
                 android:id="@+id/imageButton"
                 android:layout_weight="1" />
-            <TextView
+            <!--TextView
                 style="@style/heading2"
                 android:text="Peter Dole"
                 android:layout_width="0dp"
                 android:layout_weight="3"
-                android:id="@+id/username"/>
+                android:id="@+id/username"/-->
+
+            <EditText
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:hint="Enter username"
+                android:textAlignment="center"
+                android:id="@+id/username"
+                android:layout_weight="3" />
+
+            <Button
+                android:id="@+id/btnSubmit"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                android:text="Submit" />
+
         </LinearLayout>
         <LinearLayout
             style="@style/border_bottom_only"
@@ -90,13 +107,6 @@
                 android:text="lbs"
                 android:layout_width="0dp"
                 android:layout_weight="1"/>
-
-            <Button
-                android:id="@+id/btnSubmit"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:visibility="gone"
-                android:text="Submit" />
 
         </LinearLayout>
 

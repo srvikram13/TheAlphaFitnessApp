@@ -37,6 +37,10 @@ public class ProfileActivity extends AppCompatActivity implements OnItemSelected
     private Button btnSubmit;
 
     private EditText weight;
+    private EditText username;
+
+    private boolean genderSetFromApp = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -51,9 +55,8 @@ public class ProfileActivity extends AppCompatActivity implements OnItemSelected
         gender.setAdapter(adapter);
         gender.setOnItemSelectedListener(this);
 
-        // add listener to weight editText
-        weight = (EditText) findViewById(R.id.user_weight);
-        weight.addTextChangedListener(new TextWatcher() {
+        // textWatcher to be used for username and weight edittexts
+        TextWatcher textWatcher = new TextWatcher() {
 
             @Override
             public void afterTextChanged(Editable s) {}
@@ -69,7 +72,15 @@ public class ProfileActivity extends AppCompatActivity implements OnItemSelected
                 // make submit button visible
                 btnSubmit.setVisibility(View.VISIBLE);
             }
-        });
+        };
+
+        // add listener to weight editText
+        weight = (EditText) findViewById(R.id.user_weight);
+        weight.addTextChangedListener(textWatcher);
+
+        // add listener to username editText
+        username = (EditText) findViewById(R.id.username);
+        username.addTextChangedListener(textWatcher);
 
         // add listener to submit button
         btnSubmit = (Button) findViewById(R.id.btnSubmit);
@@ -81,7 +92,12 @@ public class ProfileActivity extends AppCompatActivity implements OnItemSelected
             public void onClick(View v) {
 
                 String genderStr = String.valueOf(gender.getSelectedItem());
+                String usernameStr = username.getText().toString();
                 String wtStr = weight.getText().toString();
+
+                //Log.d(TAG, "usernameStr == \"\": " + (usernameStr == ""));
+                //Log.d(TAG, "usernameStr.equalsIgnoreCase(\"\"): " + usernameStr.equalsIgnoreCase(""));
+
                 float wt = 0;
                 try {
                     wt = Float.parseFloat(wtStr);
@@ -92,10 +108,15 @@ public class ProfileActivity extends AppCompatActivity implements OnItemSelected
                 if (wt < 50  || wt > 500) {
                     Toast.makeText(ProfileActivity.this, "Please input valid weight between [50, 500] lbs.", Toast.LENGTH_SHORT).show();
                 }
+                else
+                if (usernameStr.equalsIgnoreCase("")) {
+                    Toast.makeText(ProfileActivity.this, "Please input valid username.", Toast.LENGTH_SHORT).show();
+                }
                 else {
                     // store in db and then hide submit btn
                     Info info = new Info();
                     info.gender = genderStr;
+                    info.username = usernameStr;
                     info.weight = wt;
                     dbHelper.updateInfo(info);
                     Log.d(TAG, "DEBUG: Updated info: " + info.toString());
@@ -104,11 +125,13 @@ public class ProfileActivity extends AppCompatActivity implements OnItemSelected
                 Toast.makeText(ProfileActivity.this,
                         "OnClickListener : " +
                                 "\nGender : "+ genderStr +
+                                "\nUsername : "+ usernameStr +
                                 "\nWeight : "+ wtStr,
                         Toast.LENGTH_SHORT).show();
 
                 Log.d(TAG, "DEBUG: OnClickListener : " +
                         "\nGender : "+ genderStr +
+                        "\nUsername : "+ usernameStr +
                         "\nWeight : "+ wtStr);
             }
         });
@@ -118,19 +141,24 @@ public class ProfileActivity extends AppCompatActivity implements OnItemSelected
         if (info.weight != 0) {
             weight.setText(String.valueOf(info.weight));
         }
+        if (info.username != "") {
+            username.setText(info.username);
+        }
         if (info.gender != null && info.gender != "") {
             int pos = adapter.getPosition(info.gender);
             gender.setSelection(pos);
+            //btnSubmit.setVisibility(View.GONE);
+            genderSetFromApp = true;
         }
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        /*FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
             }
-        });
+        });*/
     }
 
     // on item selected listener for spinner 'gender'
@@ -144,8 +172,13 @@ public class ProfileActivity extends AppCompatActivity implements OnItemSelected
 
         Log.d(TAG, "DEBUG: OnItemSelectedListener : " + parent.getItemAtPosition(pos).toString());
 
-        // make submit button visible
-        btnSubmit.setVisibility(View.VISIBLE);
+        if (genderSetFromApp){
+            // user did not set it
+            genderSetFromApp = false;
+        }else {
+            // make submit button visible
+            btnSubmit.setVisibility(View.VISIBLE);
+        }
     }
 
     @Override
@@ -156,6 +189,7 @@ public class ProfileActivity extends AppCompatActivity implements OnItemSelected
     @Override
     protected void onResume() {
         super.onResume();
+        btnSubmit.setVisibility(View.GONE);
         AllTimeData allTimeData = dbHelper.getAllTimeData();
         populateAllTimeData(allTimeData);
         populateWeeklyAverageData(allTimeData);

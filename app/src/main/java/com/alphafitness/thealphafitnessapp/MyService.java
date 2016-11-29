@@ -4,23 +4,15 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
-import android.os.Bundle;
 import android.os.IBinder;
-import android.os.RemoteException;
-import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 import android.widget.Toast;
 
 import java.util.Calendar;
-import java.util.Date;
 
 
 public class MyService extends Service implements SensorEventListener {
@@ -30,8 +22,6 @@ public class MyService extends Service implements SensorEventListener {
     IMyInterface.Stub mBinder;
 
     private SensorManager sensorManager;
-    private LocationManager locationManager;
-    LocationListener locationListener;
     DBHelper dbHelper;
 
     /*
@@ -45,14 +35,13 @@ public class MyService extends Service implements SensorEventListener {
     @Override
     public void onCreate() {
         super.onCreate();
-        Log.d(TAG, "Inside onCreate()");
-        Toast.makeText(this, "Inside onCreate() of MyService", Toast.LENGTH_SHORT).show();
+        //Log.d(TAG, "Inside onCreate()");
+        //Toast.makeText(this, "Inside onCreate() of MyService", Toast.LENGTH_SHORT).show();
 
         dbHelper = DBHelper.getInstance(getApplicationContext());
 
         final MyService mySvc = this;
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
-        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         mBinder = new IMyInterface.Stub() {
             public void startCounting() {
                 Log.d(TAG, "startCounting()");
@@ -62,6 +51,8 @@ public class MyService extends Service implements SensorEventListener {
                     if (countSensor != null) {
                         sensorManager.registerListener(mySvc, countSensor, SensorManager.SENSOR_DELAY_UI);
                         setIsCounting(true);
+                        // set sensor step count so that we start counting steps from zero
+                        setStepsAtReset(getSensorStepCount());
                         Log.d(TAG, "setIsCounting(true)");
                         long currDatetime = Calendar.getInstance().getTimeInMillis();
                         setWorkoutStartTime(currDatetime);
@@ -69,14 +60,6 @@ public class MyService extends Service implements SensorEventListener {
                         //Toast.makeText(mySvc, "Count sensor not available!", Toast.LENGTH_LONG).show();
                         Log.e(TAG, "Count sensor not available!");
                     }
-                    // Register the listener with the Location Manager to receive location updates
-                    if (ActivityCompat.checkSelfPermission(getApplicationContext(), android.Manifest.permission.ACCESS_FINE_LOCATION)
-                            != PackageManager.PERMISSION_GRANTED
-                            && ActivityCompat.checkSelfPermission(getApplicationContext(), android.Manifest.permission.ACCESS_COARSE_LOCATION)
-                            != PackageManager.PERMISSION_GRANTED) {
-                        return;
-                    }
-                    locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, locationListener);
                 }
             }
 
@@ -92,32 +75,14 @@ public class MyService extends Service implements SensorEventListener {
                 // add current workout data to all time date in DB
                 storeWorkoutData();
 
-                // Remove the listener you previously added
-                if (ActivityCompat.checkSelfPermission(getApplicationContext(), android.Manifest.permission.ACCESS_FINE_LOCATION)
-                        != PackageManager.PERMISSION_GRANTED
-                        && ActivityCompat.checkSelfPermission(getApplicationContext(), android.Manifest.permission.ACCESS_COARSE_LOCATION)
-                        != PackageManager.PERMISSION_GRANTED) {
-                    Toast.makeText(getApplicationContext(), "Permission to access device GPS denied.", Toast.LENGTH_LONG).show();
-                    return;
-                }
-                locationManager.removeUpdates(locationListener);
-                // TODO: store location data with current workout
             }
-        };
-        // Define a listener that responds to location updates
-        locationListener = new LocationListener() {
-            public void onLocationChanged(Location location) {
-                // Called when a new location is found by the network location provider.
-                Location loc = location;
-                dbHelper.updateWorkoutPath(loc.getLatitude(), loc.getLongitude());
-                //makeUseOfNewLocation(location);
+            public int getCurrentWorkoutStepCount() {
+                return getCurrentStepCount();
             }
 
-            public void onStatusChanged(String provider, int status, Bundle extras) {}
-
-            public void onProviderEnabled(String provider) {}
-
-            public void onProviderDisabled(String provider) {}
+            public long getCurrentWorkoutStartTime() {
+                return getWorkoutStartTime();
+            }
         };
     }
 
@@ -225,9 +190,26 @@ public class MyService extends Service implements SensorEventListener {
         editor.commit();
     }
 
-    private int getCurrentStepCount() {
+    public int getSensorStepCount() {
         SharedPreferences preferences = getApplicationContext().getSharedPreferences("AlphaFitness", Context.MODE_PRIVATE);
         return preferences.getInt("CURRENT_STEP_COUNT", 0);
+    }
+
+    private int getCurrentStepCount() {
+        int count = getSensorStepCount() - getStepsAtReset();
+        return count;
+    }
+
+    private void setStepsAtReset(int stepsAtReset) {
+        SharedPreferences preferences = getApplicationContext().getSharedPreferences("AlphaFitness", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putInt("STEPS_AT_RESET", stepsAtReset);
+        editor.commit();
+    }
+
+    public int getStepsAtReset() {
+        SharedPreferences preferences = getApplicationContext().getSharedPreferences("AlphaFitness", Context.MODE_PRIVATE);
+        return preferences.getInt("STEPS_AT_RESET", 0);
     }
 
     private void setWorkoutStartTime(long startTime) {
@@ -241,6 +223,5 @@ public class MyService extends Service implements SensorEventListener {
         SharedPreferences preferences = getApplicationContext().getSharedPreferences("AlphaFitness", Context.MODE_PRIVATE);
         return preferences.getLong("WORKOUT_START_TIME", -1);
     }
-
 
 }

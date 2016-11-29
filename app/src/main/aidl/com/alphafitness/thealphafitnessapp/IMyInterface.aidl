@@ -16,4 +16,8 @@ interface IMyInterface {
     void startCounting();
 
     void stopCounting();
+
+    int getCurrentWorkoutStepCount();
+    long getCurrentWorkoutStartTime();
+
 }

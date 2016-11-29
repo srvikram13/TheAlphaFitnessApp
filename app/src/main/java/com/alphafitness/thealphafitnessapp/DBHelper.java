@@ -88,8 +88,8 @@ public class DBHelper extends SQLiteOpenHelper {
                 + INFO_WEIGHT + " REAL NOT NULL);");
 
         db.execSQL("CREATE TABLE " + TABLE_WORKOUT_PATH + " ("
-                + WORKOUT_PATH_LATITUDE + " INTEGER NOT NULL, "
-                + WORKOUT_PATH_LONGITUDE + " INTEGER NOT NULL);");
+                + WORKOUT_PATH_LATITUDE + " REAL NOT NULL, "
+                + WORKOUT_PATH_LONGITUDE + " REAL NOT NULL);");
     }
 
     @Override

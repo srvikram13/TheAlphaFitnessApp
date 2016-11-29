@@ -188,17 +188,19 @@ public class RecordWorkout extends Fragment implements OnMapReadyCallback {
                 Log.d(TAG, "Inside currWorkoutTimer");
                 int currStepCountFromSvc = 0;
                 long currStartTimeFromSvc = 0;
+                long currTime = Calendar.getInstance().getTimeInMillis();
 
                 try {
                     currStepCountFromSvc = myService.getCurrentWorkoutStepCount();
                     currStartTimeFromSvc = myService.getCurrentWorkoutStartTime();
                     Log.d(TAG, "currStepCountFromSvc: " + currStepCountFromSvc
+                            + ", currTime: " + currTime
                             + ", currStartTimeFromSvc: " + currStartTimeFromSvc);
                 } catch (RemoteException e) {
                     Log.e(TAG, "Error occured in MyService while trying to get current workout distance and duration.");
                 }
 
-                long currTime = Calendar.getInstance().getTimeInMillis();
+
 
                 long currDurationInSecs = (currTime - currStartTimeFromSvc)/1000;
                 float curWorkoutDistance = (float) (currStepCountFromSvc * 0.00044);

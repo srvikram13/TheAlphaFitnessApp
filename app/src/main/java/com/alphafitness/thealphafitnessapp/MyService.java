@@ -56,6 +56,7 @@ public class MyService extends Service implements SensorEventListener {
                         Log.d(TAG, "setIsCounting(true)");
                         long currDatetime = Calendar.getInstance().getTimeInMillis();
                         setWorkoutStartTime(currDatetime);
+                        Log.d(TAG, "workout start time: " + getWorkoutStartTime());
                     } else {
                         //Toast.makeText(mySvc, "Count sensor not available!", Toast.LENGTH_LONG).show();
                         Log.e(TAG, "Count sensor not available!");

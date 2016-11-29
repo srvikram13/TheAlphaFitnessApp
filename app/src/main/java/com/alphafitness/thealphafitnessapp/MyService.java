@@ -4,6 +4,7 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -44,6 +45,10 @@ public class MyService extends Service implements SensorEventListener {
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         mBinder = new IMyInterface.Stub() {
             public void startCounting() {
+                PackageManager pm = getPackageManager();
+                if (pm.hasSystemFeature(PackageManager.FEATURE_SENSOR_STEP_COUNTER)) {
+                    Toast.makeText(getApplicationContext(), "Count sensor not available!", Toast.LENGTH_LONG).show();
+                }
                 Log.d(TAG, "startCounting()");
                 // don't start counting if already counting
                 if (!isCounting()) {

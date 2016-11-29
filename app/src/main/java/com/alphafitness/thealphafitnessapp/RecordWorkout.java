@@ -184,16 +184,18 @@ public class RecordWorkout extends Fragment implements OnMapReadyCallback {
         // timer to update current workout distance and duration
         currWorkoutTimer = new CountDownTimer(1000000000, 1000) {
 
+            long currStartTimeFromSvc = 0;
             public void onTick(long millisUntilFinished) {
                 // update text views for current workout distance and duration
                 Log.d(TAG, "Inside currWorkoutTimer");
                 int currStepCountFromSvc = 0;
-                long currStartTimeFromSvc = 0;
                 long currTime = Calendar.getInstance().getTimeInMillis();
 
                 try {
                     currStepCountFromSvc = myService.getCurrentWorkoutStepCount();
-                    currStartTimeFromSvc = myService.getCurrentWorkoutStartTime();
+                    long startTime = myService.getCurrentWorkoutStartTime();
+                    if(startTime > 0)
+                        currStartTimeFromSvc = startTime;
                     Log.d(TAG, "currStepCountFromSvc: " + currStepCountFromSvc
                             + ", currTime: " + currTime
                             + ", currStartTimeFromSvc: " + currStartTimeFromSvc);
@@ -202,7 +204,8 @@ public class RecordWorkout extends Fragment implements OnMapReadyCallback {
                 }
 
 
-
+                if(currStartTimeFromSvc <= 0)
+                    currStartTimeFromSvc = currTime;
                 long currDurationInSecs = (currTime - currStartTimeFromSvc)/1000;
                 float curWorkoutDistance = (float) (currStepCountFromSvc * 0.00044);
 

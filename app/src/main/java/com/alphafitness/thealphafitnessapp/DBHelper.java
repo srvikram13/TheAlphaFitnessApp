@@ -125,8 +125,8 @@ public class DBHelper extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE " + TABLE_WORKOUT_PATH + ";");
 
         db.execSQL("CREATE TABLE " + TABLE_WORKOUT_PATH + " ("
-                + WORKOUT_PATH_LATITUDE + " INTEGER NOT NULL, "
-                + WORKOUT_PATH_LONGITUDE + " INTEGER NOT NULL);");
+                + WORKOUT_PATH_LATITUDE + " REAL NOT NULL, "
+                + WORKOUT_PATH_LONGITUDE + " REAL NOT NULL);");
 
         db.close();
     }
@@ -144,7 +144,7 @@ public class DBHelper extends SQLiteOpenHelper {
         if (cursor.moveToFirst()) {
             do {
                 // get the data into array, or class variable
-                LatLng location = new LatLng(cursor.getInt(cursor.getColumnIndex(WORKOUT_PATH_LATITUDE)), cursor.getInt(cursor.getColumnIndex(WORKOUT_PATH_LONGITUDE)));
+                LatLng location = new LatLng(cursor.getDouble(cursor.getColumnIndex(WORKOUT_PATH_LATITUDE)), cursor.getDouble(cursor.getColumnIndex(WORKOUT_PATH_LONGITUDE)));
                 data.add(location);
             } while (cursor.moveToNext());
         }

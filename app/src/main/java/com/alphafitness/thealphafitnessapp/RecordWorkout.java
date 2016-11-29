@@ -53,7 +53,7 @@ public class RecordWorkout extends Fragment implements OnMapReadyCallback {
 
     private View mView;
     private MapView mMapView;
-
+    private GoogleMap googleMap;
 
 
     private DBHelper dbHelper;
@@ -157,7 +157,7 @@ public class RecordWorkout extends Fragment implements OnMapReadyCallback {
                         getActivity().startService(locationServiceIntent);
 
                     } catch (RemoteException e) {
-                        Log.e(TAG, "Error occured in MyService while trying to start counting.");
+                        Log.e(TAG, "Error occurred in MyService while trying to start counting.");
                         e.printStackTrace();
                     }
                     btnWorkout.setText(R.string.stop_workout);
@@ -169,6 +169,7 @@ public class RecordWorkout extends Fragment implements OnMapReadyCallback {
                         Log.d(TAG, "Calling stopCounting().");
                         myService.stopCounting();
                         getActivity().stopService(locationServiceIntent);
+                        updatePathOnMap();
                     } catch (RemoteException e) {
                         Log.e(TAG, "Error occurred in MyService while trying to stop counting.");
                         e.printStackTrace();
@@ -197,7 +198,7 @@ public class RecordWorkout extends Fragment implements OnMapReadyCallback {
                             + ", currTime: " + currTime
                             + ", currStartTimeFromSvc: " + currStartTimeFromSvc);
                 } catch (RemoteException e) {
-                    Log.e(TAG, "Error occured in MyService while trying to get current workout distance and duration.");
+                    Log.e(TAG, "Error occurred in MyService while trying to get current workout distance and duration.");
                 }
 
 
@@ -244,8 +245,8 @@ public class RecordWorkout extends Fragment implements OnMapReadyCallback {
     }
 
     @Override
-    public void onMapReady(GoogleMap googleMap) {
-
+    public void onMapReady(GoogleMap gMap) {
+        googleMap = gMap;
         if(ActivityCompat.checkSelfPermission(getActivity(), android.Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED
                 && ActivityCompat.checkSelfPermission(getActivity(), android.Manifest.permission.ACCESS_COARSE_LOCATION)
@@ -254,11 +255,9 @@ public class RecordWorkout extends Fragment implements OnMapReadyCallback {
             return;
         }
 
-        //dbHelper.updateWorkoutPath(40.722543, -73.998585);
-        //dbHelper.updateWorkoutPath(40.7577, -73.9857);
-        //dbHelper.updateWorkoutPath(40.7057, -73.9964);
-        //
-
+        updatePathOnMap();
+    }
+    private void updatePathOnMap() {
         List<LatLng> path = dbHelper.getWorkoutPath();
 
         if(path.size() >= 1) {
@@ -267,7 +266,7 @@ public class RecordWorkout extends Fragment implements OnMapReadyCallback {
                 LatLng dest = path.get(i + 1);
 
                 // mMap is the Map Object
-                Polyline line = googleMap.addPolyline(
+                googleMap.addPolyline(
                         new PolylineOptions().add(
                                 new LatLng(src.latitude, src.longitude),
                                 new LatLng(dest.latitude,dest.longitude)
@@ -275,26 +274,8 @@ public class RecordWorkout extends Fragment implements OnMapReadyCallback {
                 );
             }
             // move camera to zoom on map
-            googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(path.get(0), 13));
+            googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(path.get(0), 10));
         }
-
-        /*
-        LocationManager locationManager;
-        locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
-        Criteria criteria = new Criteria();
-        criteria.setAccuracy(Criteria.ACCURACY_FINE);
-        criteria.setPowerRequirement(Criteria.POWER_LOW);
-        String locationProvider = locationManager.getBestProvider(criteria, true);
-        Location location = locationManager.getLastKnownLocation(locationProvider);
-        if(location != null) {
-            Log.d(TAG, " location: "+location.toString());
-            googleMap.addMarker(new MarkerOptions().position(new LatLng(location.getLatitude(), location.getLongitude())).title("Marker"));
-            // Move the camera instantly to hamburg with a zoom of 15.
-            googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(location.getLatitude(), location.getLongitude()), 15));
-        }
-        googleMap.addPolyline((new PolylineOptions()).add(TIMES_SQUARE, BROOKLYN_BRIDGE, LOWER_MANHATTAN, TIMES_SQUARE).width(5).color(Color.BLUE).geodesic(true));
-        // move camera to zoom on map
-        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(LOWER_MANHATTAN, 13));*/
     }
 
     /**
